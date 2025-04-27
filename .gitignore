@@ -1,0 +1,9 @@
+# Compiled firefox extension
+*.xpi
+
+# Compiled chrome extension
+*.zip
+
+# IntelliJ IDE files
+.idea
+

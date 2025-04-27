@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Teams Caffeine",
+  "version": "1.0.0",
+  "description": "Keep your Microsoft Teams active and prevent timeout or away status.",
+  "icons": {
+    "48": "images/48.png",
+    "96": "images/96.png",
+    "128": "images/128.png",
+    "256": "images/256.png",
+    "512": "images/512.png",
+    "1024": "images/1024.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "images/48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
+      "js": ["main.js"]
+    }
+  ]
+}
