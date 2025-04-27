@@ -60,3 +60,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Keywords
 
 microsoft teams, teams extension, stay active, prevent timeout, teams status, active status, browser extension, chrome extension, edge extension, firefox extension, teams caffeine, teams activity, prevent away status, microsoft teams extension, productivity tool, work from home, remote work, keep teams awake, teams awake, awake, sleep teams.
+
+---
+
+## Changelog
+
+### v1.0.0
+- Initial code base.
