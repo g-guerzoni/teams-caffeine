@@ -1,6 +1,6 @@
 # Teams Caffeine
 
-![Teams Caffeine Logo](src/images/96.png) [![Try out the extension in the Google Chrome Store.](/src/images/chrome-store.png)](https://chromewebstore.google.com/detail/teams-caffeine/EXTENSION_ID_HERE)
+![Teams Caffeine Logo](src/images/96.png) [![Try out the extension in the Google Chrome Store.](/src/images/chrome-store.png)]([https://chromewebstore.google.com/detail/teams-caffeine/EXTENSION_ID_HERE](https://chromewebstore.google.com/detail/ngijfjcimmlajolmohfpjegneedaflpm))
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
