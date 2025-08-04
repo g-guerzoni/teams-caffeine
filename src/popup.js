@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("toggle-feature");
   const status = document.getElementById("toggle-status");
   const toggleBox = document.getElementById("toggle-box");
+  const settingsIcon = document.getElementById("settings-icon");
 
   function updateStatus(isOn) {
     status.textContent = isOn ? "ON" : "OFF";
@@ -40,4 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
       updateStatus(isOn);
     });
   }
+
+  settingsIcon.addEventListener("click", () => {
+    if (typeof chrome !== "undefined" && chrome.runtime) {
+      chrome.runtime.openOptionsPage();
+    }
+  });
 });

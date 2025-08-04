@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teams Caffeine Settings</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 40px;
+      background: #f9f9ff;
+      color: #333;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(123, 131, 235, 0.15);
+      padding: 40px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 30px;
+    }
+
+    .title {
+      color: #464EB8;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+    }
+
+    .subtitle {
+      color: #7B83EB;
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .setting-group {
+      margin-bottom: 30px;
+      padding: 25px;
+      background: #f8f9ff;
+      border-radius: 12px;
+      border-left: 4px solid #464EB8;
+    }
+
+    .setting-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #464EB8;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .setting-description {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #E0E0E0;
+      transition: .3s;
+      border-radius: 28px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked + .slider {
+      background-color: #464EB8;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .time-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .time-selector.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    select {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      padding: 8px 12px;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #464EB8;
+    }
+
+    select:disabled {
+      background: #f5f5f5;
+      cursor: not-allowed;
+    }
+
+    .status-info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e8f5e8;
+      border-radius: 8px;
+      border-left: 4px solid #4CAF50;
+      font-size: 14px;
+      color: #2E7D32;
+      display: none;
+    }
+
+    .status-info.visible {
+      display: block;
+    }
+
+    .save-status {
+      margin-top: 20px;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .save-status.success {
+      color: #4CAF50;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">Teams Caffeine Settings</h1>
+      <p class="subtitle">Configure your activity preferences</p>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">Auto-Disable Timer</label>
+      <div class="setting-description">
+        Automatically turn off Teams Caffeine after a specified time period. 
+        This helps ensure the extension doesn't run indefinitely.
+      </div>
+      
+      <div class="toggle-container">
+        <label class="switch">
+          <input type="checkbox" id="auto-disable-toggle">
+          <span class="slider"></span>
+        </label>
+        <span>Enable auto-disable</span>
+      </div>
+
+      <div class="time-selector" id="time-selector">
+        <span>Turn off after:</span>
+        <select id="hours-select">
+          <option value="1">1 hour</option>
+          <option value="2">2 hours</option>
+          <option value="4" selected>4 hours</option>
+          <option value="6">6 hours</option>
+          <option value="8">8 hours</option>
+          <option value="12">12 hours</option>
+          <option value="24">24 hours</option>
+        </select>
+      </div>
+
+      <div class="status-info" id="status-info">
+        <strong>Timer Active:</strong> <span id="timer-status"></span>
+      </div>
+    </div>
+
+    <div class="save-status" id="save-status">Settings saved!</div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

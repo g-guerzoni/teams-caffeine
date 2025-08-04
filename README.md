@@ -65,5 +65,9 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.1.0
+- Added timer feature to turn the extension ON and OFF
+- Improved the extension’s reliability to keep you online
+
 ### v1.0.0
-- Initial code base.
+- Initial code base

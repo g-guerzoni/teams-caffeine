@@ -121,6 +121,21 @@
       color: #7B83EB;
       margin-top: 15px;
       opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .settings-icon {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      font-size: 12px;
+    }
+    
+    .settings-icon:hover {
+      opacity: 1;
     }
     
     .pulse {
@@ -155,7 +170,10 @@
       <div id="toggle-status" class="toggle-status">OFF</div>
     </div>
     
-    <div class="footer">v1.0.0</div>
+    <div class="footer">
+      <span>v1.1.0</span>
+      <span class="settings-icon" id="settings-icon" title="Settings">⚙️</span>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>
