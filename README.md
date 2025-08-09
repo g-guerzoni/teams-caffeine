@@ -65,9 +65,16 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.1.1
+- **Critical Fix**: Fixed blur event handler that was causing incorrect visibility tracking
+- **Compatibility**: Replaced deprecated mouse event API with modern MouseEvent constructor
+- **Reliability**: Added comprehensive error handling for all Chrome extension APIs
+- **Validation**: Added input validation for auto-disable timer hours
+- **Stability**: Improved error recovery and user feedback throughout the extension
+
 ### v1.1.0
 - Added timer feature to turn the extension ON and OFF
-- Improved the extension’s reliability to keep you online
+- Improved the extension's reliability to keep you online
 
 ### v1.0.0
 - Initial code base

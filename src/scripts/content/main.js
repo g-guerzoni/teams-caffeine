@@ -59,28 +59,17 @@ function simulateMouseMovement() {
   const element = document.body || document.documentElement;
   if (!element) return;
   
-  const rect = element.getBoundingClientRect();
-  const x = Math.random() * rect.width;
-  const y = Math.random() * rect.height;
+  const x = Math.random() * window.innerWidth;
+  const y = Math.random() * window.innerHeight;
   
-  const event = document.createEvent("MouseEvents");
-  event.initMouseEvent(
-    "mousemove",
-    true,
-    true,
-    window,
-    0,
-    x,
-    y,
-    x,
-    y,
-    false,
-    false,
-    false,
-    false,
-    0,
-    null
-  );
+  const event = new MouseEvent("mousemove", {
+    bubbles: true,
+    cancelable: true,
+    clientX: x,
+    clientY: y,
+    screenX: x,
+    screenY: y
+  });
   element.dispatchEvent(event);
 }
 
@@ -161,10 +150,16 @@ window.addEventListener("focus", () => {
   isTabVisible = true;
 });
 window.addEventListener("blur", () => {
-  isTabVisible = document.hasFocus();
+  isTabVisible = false;
 });
 
-chrome.storage?.local.get(["teamsCaffeineEnabled"], (result) => {
+ChromeUtils.storage.get(["teamsCaffeineEnabled"], (result, error) => {
+  if (error) {
+    console.error("Teams Caffeine: Failed to load extension state, defaulting to disabled");
+    isExtensionEnabled = false;
+    return;
+  }
+  
   isExtensionEnabled = result.teamsCaffeineEnabled !== false;
   if (isExtensionEnabled) {
     startJiggle();

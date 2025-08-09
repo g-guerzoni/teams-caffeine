@@ -17,9 +17,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateTimerStatus() {
-    chrome.storage.local.get(["autoDisableStartTime", "autoDisableHours"], (result) => {
+    ChromeUtils.storage.get(["autoDisableStartTime", "autoDisableHours"], (result, error) => {
+      if (error) {
+        console.error("Teams Caffeine: Failed to read timer status");
+        statusInfo.classList.remove("visible");
+        return;
+      }
+      
       if (result.autoDisableStartTime && result.autoDisableHours) {
         const startTime = new Date(result.autoDisableStartTime);
+        
+        // Validate date
+        if (isNaN(startTime.getTime())) {
+          console.warn("Teams Caffeine: Invalid start time in storage");
+          statusInfo.classList.remove("visible");
+          return;
+        }
+        
         const endTime = new Date(startTime.getTime() + (result.autoDisableHours * 60 * 60 * 1000));
         const now = new Date();
         
@@ -47,27 +61,50 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveSettings() {
+    const hours = parseInt(hoursSelect.value);
+    
+    // Validate hours input
+    if (isNaN(hours) || hours < 1 || hours > 24) {
+      console.error("Teams Caffeine: Invalid hours value:", hoursSelect.value);
+      return;
+    }
+    
     const settings = {
       autoDisableEnabled: autoDisableToggle.checked,
-      autoDisableHours: parseInt(hoursSelect.value)
+      autoDisableHours: hours
     };
 
-    chrome.storage.local.set(settings, () => {
+    ChromeUtils.storage.set(settings, (error) => {
+      if (error) {
+        console.error("Teams Caffeine: Failed to save settings");
+        return;
+      }
+      
       showSaveStatus();
-      chrome.runtime.sendMessage({ 
+      ChromeUtils.runtime.sendMessage({ 
         type: "AUTO_DISABLE_SETTINGS_CHANGED", 
         settings: settings 
+      }, (response, error) => {
+        if (error) {
+          console.warn("Teams Caffeine: Could not communicate with background script for settings update.");
+        }
       });
       updateTimerStatus();
     });
   }
 
-  chrome.storage.local.get([
+  ChromeUtils.storage.get([
     "autoDisableEnabled", 
     "autoDisableHours"
-  ], (result) => {
-    autoDisableToggle.checked = result.autoDisableEnabled || false;
-    hoursSelect.value = result.autoDisableHours || 4;
+  ], (result, error) => {
+    if (error) {
+      console.error("Teams Caffeine: Failed to load settings, using defaults");
+      autoDisableToggle.checked = false;
+      hoursSelect.value = 4;
+    } else {
+      autoDisableToggle.checked = result.autoDisableEnabled || false;
+      hoursSelect.value = result.autoDisableHours || 4;
+    }
     
     updateTimeSelector();
     updateTimerStatus();

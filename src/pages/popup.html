@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Teams Caffeine</title>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -153,12 +152,39 @@
         box-shadow: 0 0 0 0 rgba(70, 78, 184, 0);
       }
     }
+
+    .warning-message {
+      background: #ff9800;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 10px 0;
+      box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .warning-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .warning-message.hide {
+      opacity: 0;
+      transform: translateY(-10px);
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1 class="title"><img src="images/512.png" alt="Teams Caffeine" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 5px;">Teams Caffeine</h1>
+      <h1 class="title"><img src="../images/512.png" alt="Teams Caffeine" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 5px;">Teams Caffeine</h1>
       <p class="subtitle">Keep your teams awake</p>
     </div>
     
@@ -169,12 +195,17 @@
       </label>
       <div id="toggle-status" class="toggle-status">OFF</div>
     </div>
+
+    <div id="warning-message" class="warning-message hide">
+      ⚠️ Keep Teams tab in focus while away for the extension to work properly
+    </div>
     
     <div class="footer">
-      <span>v1.1.0</span>
+      <span>v1.1.1</span>
       <span class="settings-icon" id="settings-icon" title="Settings">⚙️</span>
     </div>
   </div>
-  <script src="popup.js"></script>
+  <script src="../scripts/utils/chrome-utils.js"></script>
+  <script src="../scripts/ui/popup.js"></script>
 </body>
 </html>
