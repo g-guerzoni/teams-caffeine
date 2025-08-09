@@ -181,6 +181,40 @@
       color: #4CAF50;
       opacity: 1;
     }
+
+    .debug-group {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      border-left: 3px solid #ccc;
+    }
+
+    .debug-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .debug-description {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 15px;
+      line-height: 1.3;
+    }
+
+    .debug-toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .debug-toggle-container span {
+      font-size: 13px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -220,6 +254,21 @@
 
       <div class="status-info" id="status-info">
         <strong>Timer Active:</strong> <span id="timer-status"></span>
+      </div>
+    </div>
+
+    <div class="debug-group">
+      <label class="debug-label">Debug Mode</label>
+      <div class="debug-description">
+        Enable console logging for troubleshooting
+      </div>
+      
+      <div class="debug-toggle-container">
+        <label class="switch">
+          <input type="checkbox" id="debug-mode-toggle">
+          <span class="slider"></span>
+        </label>
+        <span>Enable debug logging</span>
       </div>
     </div>
 

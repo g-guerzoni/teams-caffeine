@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const debugModeToggle = document.getElementById("debug-mode-toggle");
   const autoDisableToggle = document.getElementById("auto-disable-toggle");
   const hoursSelect = document.getElementById("hours-select");
   const timeSelector = document.getElementById("time-selector");
@@ -60,6 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2000);
   }
 
+  function saveDebugMode() {
+    ChromeUtils.storage.set({ debugModeEnabled: debugModeToggle.checked }, (error) => {
+      if (error) {
+        console.error("Teams Caffeine: Failed to save debug mode setting");
+        return;
+      }
+      showSaveStatus();
+    });
+  }
+
   function saveSettings() {
     const hours = parseInt(hoursSelect.value);
     
@@ -86,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         settings: settings 
       }, (response, error) => {
         if (error) {
-          console.warn("Teams Caffeine: Could not communicate with background script for settings update.");
+          ChromeUtils.debugLog("Teams Caffeine: Background script communication - this is normal during extension startup");
         }
       });
       updateTimerStatus();
@@ -94,20 +105,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   ChromeUtils.storage.get([
+    "debugModeEnabled",
     "autoDisableEnabled", 
     "autoDisableHours"
   ], (result, error) => {
     if (error) {
       console.error("Teams Caffeine: Failed to load settings, using defaults");
+      debugModeToggle.checked = false;
       autoDisableToggle.checked = false;
       hoursSelect.value = 4;
     } else {
+      debugModeToggle.checked = result.debugModeEnabled || false;
       autoDisableToggle.checked = result.autoDisableEnabled || false;
       hoursSelect.value = result.autoDisableHours || 4;
     }
     
     updateTimeSelector();
     updateTimerStatus();
+  });
+
+  debugModeToggle.addEventListener("change", () => {
+    saveDebugMode();
   });
 
   autoDisableToggle.addEventListener("change", () => {

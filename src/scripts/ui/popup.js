@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       warningMessage.classList.remove("show");
       warningMessage.classList.add("hide");
-    }, 3000);
+    }, 10000);
   }
 
   const isExtension = typeof chrome !== "undefined" && chrome.storage;

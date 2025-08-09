@@ -46,7 +46,7 @@ function startAutoDisableTimer(hours) {
       autoDisableStartTime: Date.now()
     }, (error) => {
       if (!error) {
-        console.log(`Teams Caffeine: Auto-disable timer set for ${hours} hours`);
+        ChromeUtils.debugLog(`Teams Caffeine: Auto-disable timer set for ${hours} hours`);
       }
     });
   });
@@ -62,7 +62,7 @@ function stopAutoDisableTimer() {
 
     ChromeUtils.storage.remove(["autoDisableStartTime"], (error) => {
       if (!error) {
-        console.log("Teams Caffeine: Auto-disable timer cleared");
+        ChromeUtils.debugLog("Teams Caffeine: Auto-disable timer cleared");
       }
     });
   });
@@ -82,7 +82,7 @@ function handleAutoDisable() {
     
     ChromeUtils.storage.remove(["autoDisableStartTime"], (error) => {
       if (!error) {
-        console.log("Teams Caffeine: Auto-disabled after timer expiry");
+        ChromeUtils.debugLog("Teams Caffeine: Auto-disabled after timer expiry");
       }
     });
   });

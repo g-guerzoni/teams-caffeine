@@ -33,16 +33,14 @@ function scheduleNextActivity() {
   
   const delay = getRandomInterval();
   intervalId = setTimeout(() => {
-    if (isTabVisible) {
-      simulateActivity();
-    }
+    simulateActivity();
     scheduleNextActivity();
   }, delay);
 }
 
 function simulateActivity() {
-  if (!document.hasFocus() || document.hidden) {
-    return;
+  if (document.hidden) {
+    ChromeUtils.debugLog("Teams Caffeine: Tab hidden, continuing activity simulation in background");
   }
   
   const activities = [
@@ -111,22 +109,22 @@ function checkTeamsStatus() {
     const isAway = ariaLabel && (ariaLabel.toLowerCase().includes("away") || ariaLabel.toLowerCase().includes("offline"));
     
     if (isAway) {
-      console.log("Teams Caffeine: Status check detected away/offline status, triggering activity");
+      ChromeUtils.debugLog("Teams Caffeine: Status check detected away/offline status, triggering activity");
       simulateActivity();
       setTimeout(() => simulateActivity(), 2000);
       setTimeout(() => simulateActivity(), 4000);
     } else {
-      console.log(`Teams Caffeine: Status check - current status: ${ariaLabel}`);
+      ChromeUtils.debugLog(`Teams Caffeine: Status check - current status: ${ariaLabel}`);
     }
   } else {
-    console.log("Teams Caffeine: Status check - presence badge not found");
+    ChromeUtils.debugLog("Teams Caffeine: Status check - presence badge not found");
   }
 }
 
 function startStatusMonitoring() {
   if (statusCheckIntervalId === null && isExtensionEnabled) {
     statusCheckIntervalId = setInterval(checkTeamsStatus, STATUS_CHECK_INTERVAL);
-    console.log("Teams Caffeine: Status monitoring started (5 minute intervals)");
+    ChromeUtils.debugLog("Teams Caffeine: Status monitoring started (5 minute intervals)");
   }
 }
 
@@ -134,23 +132,27 @@ function stopStatusMonitoring() {
   if (statusCheckIntervalId !== null) {
     clearInterval(statusCheckIntervalId);
     statusCheckIntervalId = null;
-    console.log("Teams Caffeine: Status monitoring stopped");
+    ChromeUtils.debugLog("Teams Caffeine: Status monitoring stopped");
   }
 }
 
 function handleVisibilityChange() {
   isTabVisible = !document.hidden;
   if (!isTabVisible) {
-    console.log("Teams Caffeine: Tab hidden, pausing activity");
+    ChromeUtils.debugLog("Teams Caffeine: Tab hidden, continuing activity simulation");
+  } else {
+    ChromeUtils.debugLog("Teams Caffeine: Tab visible, continuing activity simulation");
   }
 }
 
 document.addEventListener("visibilitychange", handleVisibilityChange);
 window.addEventListener("focus", () => {
   isTabVisible = true;
+  ChromeUtils.debugLog("Teams Caffeine: Window focused, continuing activity simulation");
 });
 window.addEventListener("blur", () => {
   isTabVisible = false;
+  ChromeUtils.debugLog("Teams Caffeine: Window blurred, continuing activity simulation");
 });
 
 ChromeUtils.storage.get(["teamsCaffeineEnabled"], (result, error) => {

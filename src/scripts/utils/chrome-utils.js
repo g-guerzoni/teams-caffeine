@@ -1,5 +1,13 @@
 // Chrome API utilities with comprehensive error handling
 const ChromeUtils = {
+  // Debug logging utility
+  debugLog: (...args) => {
+    ChromeUtils.storage.get(["debugModeEnabled"], (result, error) => {
+      if (!error && result.debugModeEnabled) {
+        console.log(...args);
+      }
+    });
+  },
   // Helper function to format error messages properly
   _formatError: (error) => {
     if (!error) return "Unknown error";
