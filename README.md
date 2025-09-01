@@ -65,6 +65,12 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.3.0
+- **Page Reload Strategy**: Extension now reloads Teams pages when toggling state to improve reliability
+- **Enhanced Activation**: 1-second delay after page reload ensures proper script injection timing
+- **Consistent Behavior**: Both manual and auto-disable now use the same page reload approach
+- **Better Compatibility**: Addresses timing issues with Teams security mechanisms
+
 ### v1.2.0
 - **Background Activity**: Extension now continues working when switching tabs or applications
 - **Debug Mode**: Added optional debug logging toggle in settings for troubleshooting

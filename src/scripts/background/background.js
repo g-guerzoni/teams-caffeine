@@ -24,6 +24,37 @@ function sendMessageToTeamsTabs(message) {
   );
 }
 
+function reloadTeamsTabsAndToggle(enabled) {
+  chrome.tabs.query(
+    {
+      url: ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
+    },
+    (tabs) => {
+      if (chrome.runtime.lastError) {
+        console.error("Teams Caffeine: Error querying tabs:", chrome.runtime.lastError);
+        return;
+      }
+
+      for (const tab of tabs) {
+        chrome.tabs.reload(tab.id, (error) => {
+          if (error) {
+            console.error("Teams Caffeine: Error reloading tab:", error);
+          }
+        });
+      }
+
+      if (enabled) {
+        setTimeout(() => {
+          sendMessageToTeamsTabs({
+            type: "TEAMS_CAFFEINE_STATE",
+            enabled: true,
+          });
+        }, 1000);
+      }
+    }
+  );
+}
+
 function startAutoDisableTimer(hours) {
   // Validate input
   if (!hours || typeof hours !== "number" || hours <= 0 || hours > 24) {
@@ -75,10 +106,7 @@ function handleAutoDisable() {
       return;
     }
 
-    sendMessageToTeamsTabs({
-      type: "TEAMS_CAFFEINE_STATE",
-      enabled: false,
-    });
+    reloadTeamsTabsAndToggle(false);
     
     ChromeUtils.storage.remove(["autoDisableStartTime"], (error) => {
       if (!error) {
@@ -98,10 +126,7 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "TEAMS_CAFFEINE_TOGGLE") {
     const enabled = message.enabled === true;
 
-    sendMessageToTeamsTabs({
-      type: "TEAMS_CAFFEINE_STATE",
-      enabled,
-    });
+    reloadTeamsTabsAndToggle(enabled);
 
     if (enabled) {
       ChromeUtils.storage.get(["autoDisableEnabled", "autoDisableHours"], (result, error) => {
