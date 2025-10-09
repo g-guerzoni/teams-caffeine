@@ -65,6 +65,14 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.4.0
+- **Web Accessibility Improvements**: Enhanced accessibility for screen readers and keyboard navigation
+- **ARIA Support**: Added comprehensive ARIA attributes (aria-label, aria-checked, role="switch") to all interactive elements
+- **Semantic HTML**: Improved HTML structure with proper landmarks (main, header, footer, section)
+- **Keyboard Navigation**: Enhanced focus indicators and keyboard accessibility for all controls
+- **Screen Reader Announcements**: Added aria-live regions for dynamic status updates
+- **WCAG Compliance**: Improved color contrast and focus visibility for better accessibility standards
+
 ### v1.3.0
 - **Page Reload Strategy**: Extension now reloads Teams pages when toggling state to improve reliability
 - **Enhanced Activation**: 1-second delay after page reload ensures proper script injection timing

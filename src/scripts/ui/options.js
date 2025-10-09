@@ -8,12 +8,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveStatus = document.getElementById("save-status");
 
   function updateTimeSelector() {
-    if (autoDisableToggle.checked) {
+    const isEnabled = autoDisableToggle.checked;
+    autoDisableToggle.setAttribute("aria-checked", isEnabled ? "true" : "false");
+
+    if (isEnabled) {
       timeSelector.classList.remove("disabled");
       hoursSelect.disabled = false;
+      hoursSelect.removeAttribute("aria-disabled");
     } else {
       timeSelector.classList.add("disabled");
       hoursSelect.disabled = true;
+      hoursSelect.setAttribute("aria-disabled", "true");
     }
   }
 
@@ -62,7 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveDebugMode() {
-    ChromeUtils.storage.set({ debugModeEnabled: debugModeToggle.checked }, (error) => {
+    const isEnabled = debugModeToggle.checked;
+    debugModeToggle.setAttribute("aria-checked", isEnabled ? "true" : "false");
+
+    ChromeUtils.storage.set({ debugModeEnabled: isEnabled }, (error) => {
       if (error) {
         console.error("Teams Caffeine: Failed to save debug mode setting");
         return;
@@ -106,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   ChromeUtils.storage.get([
     "debugModeEnabled",
-    "autoDisableEnabled", 
+    "autoDisableEnabled",
     "autoDisableHours"
   ], (result, error) => {
     if (error) {
@@ -119,7 +127,10 @@ document.addEventListener("DOMContentLoaded", () => {
       autoDisableToggle.checked = result.autoDisableEnabled || false;
       hoursSelect.value = result.autoDisableHours || 4;
     }
-    
+
+    debugModeToggle.setAttribute("aria-checked", debugModeToggle.checked ? "true" : "false");
+    autoDisableToggle.setAttribute("aria-checked", autoDisableToggle.checked ? "true" : "false");
+
     updateTimeSelector();
     updateTimerStatus();
   });

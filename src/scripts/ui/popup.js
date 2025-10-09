@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateStatus(isOn) {
     status.textContent = isOn ? "ON" : "OFF";
+    toggle.setAttribute("aria-checked", isOn ? "true" : "false");
 
     if (isOn) {
       status.classList.add("status-on");

@@ -118,6 +118,18 @@
       transform: translateX(22px);
     }
 
+    input:focus + .slider {
+      box-shadow: 0 0 0 3px rgba(70, 78, 184, 0.4);
+      outline: 2px solid #464EB8;
+      outline-offset: 2px;
+    }
+
+    input:focus-visible + .slider {
+      box-shadow: 0 0 0 3px rgba(70, 78, 184, 0.4);
+      outline: 2px solid #464EB8;
+      outline-offset: 2px;
+    }
+
     .time-selector {
       display: flex;
       align-items: center;
@@ -143,7 +155,14 @@
     }
 
     select:focus {
-      outline: none;
+      outline: 2px solid #464EB8;
+      outline-offset: 2px;
+      border-color: #464EB8;
+    }
+
+    select:focus-visible {
+      outline: 2px solid #464EB8;
+      outline-offset: 2px;
       border-color: #464EB8;
     }
 
@@ -215,33 +234,46 @@
       font-size: 13px;
       color: #666;
     }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
+  <main class="container" role="main">
+    <header class="header">
       <h1 class="title">Teams Caffeine Settings</h1>
       <p class="subtitle">Configure your activity preferences</p>
-    </div>
+    </header>
 
-    <div class="setting-group">
-      <label class="setting-label">Auto-Disable Timer</label>
-      <div class="setting-description">
-        Automatically turn off Teams Caffeine after a specified time period. 
+    <section class="setting-group" aria-labelledby="auto-disable-label">
+      <h2 class="setting-label" id="auto-disable-label">Auto-Disable Timer</h2>
+      <p class="setting-description" id="auto-disable-description">
+        Automatically turn off Teams Caffeine after a specified time period.
         This helps ensure the extension doesn't run indefinitely.
-      </div>
-      
+      </p>
+
       <div class="toggle-container">
-        <label class="switch">
-          <input type="checkbox" id="auto-disable-toggle">
-          <span class="slider"></span>
+        <label class="switch" for="auto-disable-toggle">
+          <span class="visually-hidden">Enable auto-disable timer</span>
+          <input type="checkbox" id="auto-disable-toggle" role="switch" aria-checked="false" aria-describedby="auto-disable-description">
+          <span class="slider" aria-hidden="true"></span>
         </label>
-        <span>Enable auto-disable</span>
+        <span aria-hidden="true">Enable auto-disable</span>
       </div>
 
       <div class="time-selector" id="time-selector">
-        <span>Turn off after:</span>
-        <select id="hours-select">
+        <label for="hours-select">Turn off after:</label>
+        <select id="hours-select" aria-label="Select hours until auto-disable">
           <option value="1">1 hour</option>
           <option value="2">2 hours</option>
           <option value="4" selected>4 hours</option>
@@ -252,28 +284,29 @@
         </select>
       </div>
 
-      <div class="status-info" id="status-info">
+      <div class="status-info" id="status-info" role="status" aria-live="polite">
         <strong>Timer Active:</strong> <span id="timer-status"></span>
       </div>
-    </div>
+    </section>
 
-    <div class="debug-group">
-      <label class="debug-label">Debug Mode</label>
-      <div class="debug-description">
+    <section class="debug-group" aria-labelledby="debug-label">
+      <h2 class="debug-label" id="debug-label">Debug Mode</h2>
+      <p class="debug-description" id="debug-description">
         Enable console logging for troubleshooting
-      </div>
-      
-      <div class="debug-toggle-container">
-        <label class="switch">
-          <input type="checkbox" id="debug-mode-toggle">
-          <span class="slider"></span>
-        </label>
-        <span>Enable debug logging</span>
-      </div>
-    </div>
+      </p>
 
-    <div class="save-status" id="save-status">Settings saved!</div>
-  </div>
+      <div class="debug-toggle-container">
+        <label class="switch" for="debug-mode-toggle">
+          <span class="visually-hidden">Enable debug mode</span>
+          <input type="checkbox" id="debug-mode-toggle" role="switch" aria-checked="false" aria-describedby="debug-description">
+          <span class="slider" aria-hidden="true"></span>
+        </label>
+        <span aria-hidden="true">Enable debug logging</span>
+      </div>
+    </section>
+
+    <div class="save-status" id="save-status" role="status" aria-live="polite" aria-atomic="true">Settings saved!</div>
+  </main>
 
   <script src="../scripts/utils/chrome-utils.js"></script>
   <script src="../scripts/ui/options.js"></script>
