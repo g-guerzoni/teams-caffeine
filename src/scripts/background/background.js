@@ -1,5 +1,7 @@
 // Import utilities for error handling
-importScripts('../utils/chrome-utils.js');
+importScripts("../utils/chrome-utils.js");
+
+const TEAMS_URLS = ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"];
 
 function sendMessageToTeamsTabs(message) {
   if (!message || typeof message !== "object") {
@@ -9,7 +11,7 @@ function sendMessageToTeamsTabs(message) {
 
   chrome.tabs.query(
     {
-      url: ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
+      url: TEAMS_URLS,
     },
     (tabs) => {
       if (chrome.runtime.lastError) {
@@ -20,14 +22,14 @@ function sendMessageToTeamsTabs(message) {
       for (const tab of tabs) {
         ChromeUtils.tabs.sendMessage(tab.id, message);
       }
-    }
+    },
   );
 }
 
 function reloadTeamsTabsAndToggle(enabled) {
   chrome.tabs.query(
     {
-      url: ["https://teams.live.com/*", "https://teams.microsoft.com/*"],
+      url: TEAMS_URLS,
     },
     (tabs) => {
       if (chrome.runtime.lastError) {
@@ -35,23 +37,43 @@ function reloadTeamsTabsAndToggle(enabled) {
         return;
       }
 
-      for (const tab of tabs) {
-        chrome.tabs.reload(tab.id, (error) => {
-          if (error) {
-            console.error("Teams Caffeine: Error reloading tab:", error);
-          }
-        });
+      if (!tabs.length) return;
+
+      if (!enabled) {
+        for (const tab of tabs) {
+          chrome.tabs.reload(tab.id);
+        }
+        return;
       }
 
-      if (enabled) {
-        setTimeout(() => {
-          sendMessageToTeamsTabs({
-            type: "TEAMS_CAFFEINE_STATE",
-            enabled: true,
-          });
-        }, 1000);
+      const pendingTabIds = new Set(tabs.map((t) => t.id));
+
+      const onTabUpdated = (tabId, changeInfo) => {
+        if (!pendingTabIds.has(tabId) || changeInfo.status !== "complete") return;
+
+        pendingTabIds.delete(tabId);
+        ChromeUtils.tabs.sendMessage(tabId, {
+          type: "TEAMS_CAFFEINE_STATE",
+          enabled: true,
+        });
+
+        if (pendingTabIds.size === 0) {
+          chrome.tabs.onUpdated.removeListener(onTabUpdated);
+          clearTimeout(safetyTimeout);
+        }
+      };
+
+      const safetyTimeout = setTimeout(() => {
+        chrome.tabs.onUpdated.removeListener(onTabUpdated);
+        ChromeUtils.debugLog("Teams Caffeine: Safety timeout — cleaned up tab listener");
+      }, 10000);
+
+      chrome.tabs.onUpdated.addListener(onTabUpdated);
+
+      for (const tab of tabs) {
+        chrome.tabs.reload(tab.id);
       }
-    }
+    },
   );
 }
 
@@ -64,7 +86,7 @@ function startAutoDisableTimer(hours) {
 
   const alarmName = "autoDisableTeamsCaffeine";
   const delayInMinutes = Math.max(1, Math.floor(hours * 60)); // Chrome minimum is 1 minute
-  
+
   ChromeUtils.alarms.clear(alarmName, (wasCleared, error) => {
     if (error) {
       console.error("Teams Caffeine: Error clearing alarm:", error);
@@ -72,16 +94,19 @@ function startAutoDisableTimer(hours) {
     }
 
     ChromeUtils.alarms.create(alarmName, { delayInMinutes });
-    
-    ChromeUtils.storage.set({
-      autoDisableStartTime: Date.now()
-    }, (error) => {
-      if (!error) {
-        ChromeUtils.debugLog(`Teams Caffeine: Auto-disable timer set for ${hours} hours`);
-      }
-    });
+
+    ChromeUtils.storage.set(
+      {
+        autoDisableStartTime: Date.now(),
+      },
+      (error) => {
+        if (!error) {
+          ChromeUtils.debugLog(`Teams Caffeine: Auto-disable timer set for ${hours} hours`);
+        }
+      },
+    );
   });
-  
+
   return true;
 }
 
@@ -107,7 +132,7 @@ function handleAutoDisable() {
     }
 
     reloadTeamsTabsAndToggle(false);
-    
+
     ChromeUtils.storage.remove(["autoDisableStartTime"], (error) => {
       if (!error) {
         ChromeUtils.debugLog("Teams Caffeine: Auto-disabled after timer expiry");
@@ -134,9 +159,13 @@ chrome.runtime.onMessage.addListener((message) => {
           console.error("Teams Caffeine: Error reading auto-disable settings:", error);
           return;
         }
-        
-        if (result.autoDisableEnabled && result.autoDisableHours && 
-            typeof result.autoDisableHours === "number" && result.autoDisableHours > 0) {
+
+        if (
+          result.autoDisableEnabled &&
+          result.autoDisableHours &&
+          typeof result.autoDisableHours === "number" &&
+          result.autoDisableHours > 0
+        ) {
           startAutoDisableTimer(result.autoDisableHours);
         }
       });
@@ -145,7 +174,7 @@ chrome.runtime.onMessage.addListener((message) => {
     }
   } else if (message.type === "AUTO_DISABLE_SETTINGS_CHANGED") {
     const settings = message.settings;
-    
+
     if (!settings.autoDisableEnabled) {
       stopAutoDisableTimer();
     } else {
@@ -154,9 +183,13 @@ chrome.runtime.onMessage.addListener((message) => {
           console.error("Teams Caffeine: Error reading extension state:", error);
           return;
         }
-        
-        if (result.teamsCaffeineEnabled && settings.autoDisableHours && 
-            typeof settings.autoDisableHours === "number" && settings.autoDisableHours > 0) {
+
+        if (
+          result.teamsCaffeineEnabled &&
+          settings.autoDisableHours &&
+          typeof settings.autoDisableHours === "number" &&
+          settings.autoDisableHours > 0
+        ) {
           startAutoDisableTimer(settings.autoDisableHours);
         }
       });

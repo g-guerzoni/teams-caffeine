@@ -27,6 +27,7 @@ Teams Caffeine is a lightweight browser extension that keeps your Microsoft Team
 ## Local Setup
 
 ### Manual load
+
 1. Go to chrome://extensions/
 2. Enable the "develop mode""
 3. Go to "Load unpacked""
@@ -65,7 +66,14 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.5.0
+
+- **New Domain Support**: Added support for Microsoft Teams' new `teams.cloud.microsoft` domain
+- **Reliable Tab Reload**: Replaced fragile timeout-based reload with event-driven `tabs.onUpdated` listener
+- **Service Worker Stability**: Eliminated risk of service worker termination during tab reload process
+
 ### v1.4.0
+
 - **Web Accessibility Improvements**: Enhanced accessibility for screen readers and keyboard navigation
 - **ARIA Support**: Added comprehensive ARIA attributes (aria-label, aria-checked, role="switch") to all interactive elements
 - **Semantic HTML**: Improved HTML structure with proper landmarks (main, header, footer, section)
@@ -74,17 +82,20 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 - **WCAG Compliance**: Improved color contrast and focus visibility for better accessibility standards
 
 ### v1.3.0
+
 - **Page Reload Strategy**: Extension now reloads Teams pages when toggling state to improve reliability
 - **Enhanced Activation**: 1-second delay after page reload ensures proper script injection timing
 - **Consistent Behavior**: Both manual and auto-disable now use the same page reload approach
 - **Better Compatibility**: Addresses timing issues with Teams security mechanisms
 
 ### v1.2.0
+
 - **Background Activity**: Extension now continues working when switching tabs or applications
 - **Debug Mode**: Added optional debug logging toggle in settings for troubleshooting
 - **Tab Focus Fix**: Teams no longer goes "Away" when switching tabs or losing browser focus
 
 ### v1.1.1
+
 - **Critical Fix**: Fixed blur event handler that was causing incorrect visibility tracking
 - **Compatibility**: Replaced deprecated mouse event API with modern MouseEvent constructor
 - **Reliability**: Added comprehensive error handling for all Chrome extension APIs
@@ -92,8 +103,10 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 - **Stability**: Improved error recovery and user feedback throughout the extension
 
 ### v1.1.0
+
 - Added timer feature to turn the extension ON and OFF
 - Improved the extension's reliability to keep you online
 
 ### v1.0.0
+
 - Initial code base

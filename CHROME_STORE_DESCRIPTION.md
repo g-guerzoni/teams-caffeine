@@ -21,7 +21,7 @@ Teams Caffeine is a simple, lightweight browser extension designed to keep your 
 
 **How it Works:**
 
-Teams Caffeine simulates tiny mouse movements within the Microsoft Teams web application (teams.live.com and teams.microsoft.com) to mimic user activity, tricking Teams into thinking you're still active at your computer.
+Teams Caffeine simulates tiny mouse movements within the Microsoft Teams web application (teams.live.com, teams.microsoft.com, and teams.cloud.microsoft) to mimic user activity, tricking Teams into thinking you're still active at your computer.
 
 **Perfect for:**
 
