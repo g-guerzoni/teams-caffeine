@@ -17,15 +17,21 @@ teams-caffeine/
 ├── build.bat                     # Build script for Windows
 ├── chrome.zip                    # Built extension archive (generated; git-ignored)
 ├── test/                         # Unit tests (Node's built-in test runner)
-│   └── timing.test.js            # Tests for the pure timing helpers
+│   ├── timing.test.js            # Tests for the pure timing helpers
+│   ├── selectors.test.js         # Tests for the Teams selector helpers
+│   └── call-status.test.js       # Tests for the popup call/mic helpers
 └── src/                          # Extension source code directory
     ├── manifest.json             # Chrome extension manifest (Manifest V3)
     ├── scripts/                  # JavaScript files organized by purpose
     │   ├── utils/                # Utility functions and helpers
     │   │   ├── chrome-utils.js   # Chrome API wrappers with error handling
-    │   │   └── timing.js         # Pure activity-interval helpers (unit-tested)
+    │   │   ├── timing.js         # Pure activity-interval helpers (unit-tested)
+    │   │   └── call-status.js    # Pure popup call/mic status helpers (unit-tested)
     │   ├── content/              # Content scripts
-    │   │   └── main.js           # Main content script (injected into Teams pages)
+    │   │   ├── main.js           # Caffeine content script (activity simulation)
+    │   │   └── teams/            # Teams controls (extensible framework)
+    │   │       ├── selectors.js  # Single source of Teams DOM knowledge (TeamsSelectors)
+    │   │       └── teams-controls.js # Registry + mic-highlight + status query (IIFE)
     │   ├── background/           # Background service worker
     │   │   └── background.js     # Service worker (background script)
     │   └── ui/                   # User interface scripts
@@ -66,7 +72,7 @@ teams-caffeine/
 - **manifest.json**: Manifest V3 configuration defining:
   - Extension metadata (name, version, description)
   - Permissions (storage, alarms, tabs)
-  - Content scripts targeting the Teams domains (`chrome-utils.js`, `timing.js`, then `main.js`)
+  - Content scripts targeting the Teams domains (`chrome-utils.js`, `timing.js`, `teams/selectors.js`, `teams/teams-controls.js`, then `main.js`)
   - Background service worker
   - Extension icons, popup, and options page
 
@@ -74,6 +80,7 @@ teams-caffeine/
 
 - **chrome-utils.js**: Chrome API utility wrappers providing consistent error handling for storage, runtime messaging, tab communication, and alarms, plus a `debugLog` gated on the `debugModeEnabled` setting.
 - **timing.js**: Pure helpers (`MIN_INTERVAL`, `MAX_INTERVAL`, `getRandomInterval()`) for the activity loop. Injected before `main.js` so they are available as globals, and guarded with a `module.exports` block so the same logic can be unit-tested under Node.
+- **call-status.js**: Pure helpers (`pickStrongestStatus()`, `describeCallStatus()`) that turn per-tab call/mic replies into what the popup indicator renders. Loaded before `popup.js` and `module.exports`-guarded for Node unit tests.
 
 #### Background Processing (`scripts/background/`)
 
@@ -92,16 +99,18 @@ teams-caffeine/
   - Fires a single activity on each `TEAMS_CAFFEINE_HEARTBEAT` message from the service worker
   - Monitors Teams presence status every 5 minutes, trying multiple selectors and warning if none match
   - Responds to extension state changes
+- **teams/selectors.js**: The single quarantined source of Teams DOM knowledge, exposed as one global `TeamsSelectors` (mic-button selectors, ring colors, `buildHighlightCss()`, and the `readCallState()` / `readMicState()` readers). UMD-guarded for Node unit tests.
+- **teams/teams-controls.js**: An IIFE (leaks no globals) holding the extensible `FEATURES` registry. Ships the **mic-button highlight** (pure attribute-keyed CSS ring, red = muted / teal = live), toggled live via the `teamsMicHighlightEnabled` setting, and answers the popup's `TEAMS_CAFFEINE_GET_CALL_STATUS` query. Runs independently of the caffeine on/off state, alongside `main.js`.
 
 #### User Interface Pages (`pages/`)
 
-- **popup.html**: Toolbar popup with the on/off toggle, status indicator, an away-focus warning, and a settings gear icon.
-- **options.html**: Options page with the auto-disable timer configuration, time-selection dropdown, timer status display, and debug-mode toggle.
+- **popup.html**: Toolbar popup with the on/off toggle, a read-only call/mic status indicator (In call / Pre-join / Not in call + mic state), an away-focus warning, and a settings gear icon.
+- **options.html**: Options page with the auto-disable timer, a Microsoft Teams section (mic-highlight toggle), timer status display, and debug-mode toggle.
 
 #### User Interface Scripts (`scripts/ui/`)
 
-- **popup.js**: Toggle interactions, storage integration with error handling, warning display, and opening the options page.
-- **options.js**: Auto-disable settings persistence with validation, live timer-status countdown, debug-mode persistence, and communication with the background script.
+- **popup.js**: Toggle interactions, storage integration with error handling, warning display, opening the options page, and polling Teams tabs (~1s) for call/mic status to render the indicator.
+- **options.js**: Auto-disable settings, the mic-highlight toggle, and debug-mode persistence (all with validation), plus the live timer-status countdown.
 
 ## Architecture Overview
 
@@ -116,6 +125,8 @@ Teams Caffeine is a Chrome Extension built on Manifest V3, providing a modern se
 3. **Cross-Tab Communication**: The service worker reloads Teams tabs, re-broadcasts state, and starts/stops the activity heartbeat and the auto-disable timer.
 4. **Activity Simulation**: Content scripts run their own randomized loop and also fire one activity on each heartbeat message.
 5. **Auto-Disable**: The service worker manages a timer and disables the extension when it expires.
+6. **Call/Mic Indicator**: The popup queries each Teams tab (`TEAMS_CAFFEINE_GET_CALL_STATUS`); the content script replies `{callState, micState}` read from the DOM, and the popup renders the strongest result.
+7. **Mic Highlight**: The options page writes `teamsMicHighlightEnabled`; the content script reacts via `chrome.storage.onChanged` to inject/remove the highlight stylesheet.
 
 ### Reliability Model
 
@@ -140,6 +151,18 @@ Content-script `setTimeout`/`setInterval` are throttled (and the tab may be froz
 ### timing.js (Shared Helper)
 
 - **`getRandomInterval()`**: Returns a random delay in milliseconds within `[MIN_INTERVAL, MAX_INTERVAL)` seconds. Pure and unit-tested.
+
+### selectors.js / teams-controls.js (Teams Controls)
+
+- **`TeamsSelectors.buildHighlightCss()`**: Builds the attribute-keyed stylesheet that rings the mic button (red muted / teal live). Pure, unit-tested.
+- **`TeamsSelectors.micStateFromDataState(state)`**: Maps a `data-state` value to `"muted"` / `"live"` / `null`. Pure, unit-tested.
+- **`TeamsSelectors.readCallState()` / `readMicState()`**: Read call presence and mic state from the Teams DOM (call state has a URL fallback).
+- **`micHighlight` feature + `FEATURES` registry**: The `{ id, settingKey, start, stop }` control and the extensibility seam; a message listener answers `TEAMS_CAFFEINE_GET_CALL_STATUS`.
+
+### call-status.js (Popup Helpers)
+
+- **`pickStrongestStatus(replies)`**: Reduces per-tab replies to the strongest call state (in-call > pre-join > none), keeping its mic state. Pure, unit-tested.
+- **`describeCallStatus(status)`**: Maps `{callState, micState}` to the popup descriptor `{ label, tone, chip }`. Pure, unit-tested.
 
 ### main.js (Content Script)
 
