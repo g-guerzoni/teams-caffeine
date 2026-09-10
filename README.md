@@ -38,7 +38,7 @@ Teams Caffeine is a lightweight browser extension that keeps your Microsoft Team
 
 ### Build
 
-Building the extension needs no dependencies — it simply zips `src/` into `chrome.zip`:
+Building the extension needs no dependencies, so it just zips `src/` into `chrome.zip`:
 
 ```bash
 git clone https://github.com/g-guerzoni/teams-caffeine.git

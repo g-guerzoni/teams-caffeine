@@ -224,8 +224,6 @@
       justify-content: center;
       gap: 8px;
       margin-top: 12px;
-      font-size: 13px;
-      color: #555;
     }
 
     .call-dot {
@@ -240,11 +238,43 @@
     .call-status.tone-pre-join .call-dot { background: #f59e0b; }
     .call-status.tone-none .call-dot { background: #bbb; }
 
+    .call-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.25;
+    }
+
+    .call-label {
+      font-size: 13px;
+      color: #555;
+    }
+
     .mic-chip {
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      margin-top: 2px;
+      font-size: 11px;
       font-weight: 600;
+    }
+
+    .mic-chip svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .settings-icon svg {
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+
+    .warn-icon {
+      width: 14px;
+      height: 14px;
+      vertical-align: -3px;
+      margin-right: 4px;
     }
   </style>
 </head>
@@ -266,17 +296,19 @@
 
     <div id="call-status" class="call-status tone-none" role="status" aria-live="polite" aria-atomic="true">
       <span class="call-dot" id="call-dot" aria-hidden="true"></span>
-      <span class="call-label" id="call-label">Not in call</span>
-      <span class="mic-chip" id="mic-chip" hidden></span>
+      <span class="call-text">
+        <span class="call-label" id="call-label">Not in call</span>
+        <span class="mic-chip" id="mic-chip" hidden></span>
+      </span>
     </div>
 
     <div id="warning-message" class="warning-message hide" role="alert" aria-live="polite">
-      ⚠️ Keep Teams tab in focus while away for the extension to work properly
+      <svg class="warn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Keep Teams tab in focus while away for the extension to work properly
     </div>
 
     <footer class="footer">
       <span>v1.7.0</span>
-      <button class="settings-icon" id="settings-icon" aria-label="Open settings" type="button">⚙️</button>
+      <button class="settings-icon" id="settings-icon" aria-label="Open settings" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </footer>
   </main>
   <script src="../scripts/utils/chrome-utils.js"></script>

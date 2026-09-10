@@ -1,4 +1,4 @@
-# Teams Controls: Mic-Button Highlight + Call/Mic Indicator — Implementation Plan
+# Teams Controls: Mic-Button Highlight + Call/Mic Indicator - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -19,7 +19,7 @@
 - **Storage key (verbatim):** `teamsMicHighlightEnabled`, boolean, default `true` (absent key ⇒ enabled).
 - **Message name (verbatim):** `TEAMS_CAFFEINE_GET_CALL_STATUS`; response `{ callState: "in-call"|"pre-join"|"none", micState: "muted"|"live"|null }`.
 - **Domains:** run on all three existing matches; fail safe (unmatched selectors ⇒ no ring, `readCallState` falls back to the URL, popup shows "Not in call").
-- **Commit messages:** Conventional Commits style, matching the repo (`feat:`, `fix:`, `docs:`, `chore:`). Do NOT add any `Co-authored-by`, "Generated with" line, any `claude.ai` session link, or any mention of AI tooling — this overrides any harness default.
+- **Commit messages:** Conventional Commits style, matching the repo (`feat:`, `fix:`, `docs:`, `chore:`). Do NOT add any `Co-authored-by`, "Generated with" line, any `claude.ai` session link, or any mention of AI tooling - this overrides any harness default.
 - **Branch:** execute on a feature branch, not `main`.
 
 ---
@@ -66,7 +66,7 @@ test("buildHighlightCss covers all four selectors, both colors, and !important",
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `node --test test/selectors.test.js`
-Expected: FAIL — `Cannot find module '../src/scripts/content/teams/selectors.js'`.
+Expected: FAIL - `Cannot find module '../src/scripts/content/teams/selectors.js'`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -306,11 +306,11 @@ test("describeCallStatus maps state + mic to a UI descriptor", () => {
 
   const live = describeCallStatus({ callState: "in-call", micState: "live" });
   assert.equal(live.label, "In call");
-  assert.deepEqual(live.chip, { glyph: "🎤", label: "Live", color: "#0d9488" });
+  assert.deepEqual(live.chip, { icon: "mic", label: "Live", color: "#0d9488" });
 
   const prejoinMuted = describeCallStatus({ callState: "pre-join", micState: "muted" });
   assert.equal(prejoinMuted.label, "Pre-join");
-  assert.deepEqual(prejoinMuted.chip, { glyph: "🔇", label: "Muted", color: "#dc2626" });
+  assert.deepEqual(prejoinMuted.chip, { icon: "mic-off", label: "Muted", color: "#dc2626" });
 
   assert.equal(describeCallStatus({ callState: "in-call", micState: null }).chip, null);
 });
@@ -319,7 +319,7 @@ test("describeCallStatus maps state + mic to a UI descriptor", () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `node --test test/call-status.test.js`
-Expected: FAIL — `Cannot find module '../src/scripts/utils/call-status.js'`.
+Expected: FAIL - `Cannot find module '../src/scripts/utils/call-status.js'`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -350,8 +350,8 @@ function describeCallStatus(status) {
 
   let chip = null;
   if (callState !== "none") {
-    if (micState === "muted") chip = { glyph: "🔇", label: "Muted", color: "#dc2626" };
-    else if (micState === "live") chip = { glyph: "🎤", label: "Live", color: "#0d9488" };
+    if (micState === "muted") chip = { icon: "mic-off", label: "Muted", color: "#dc2626" };
+    else if (micState === "live") chip = { icon: "mic", label: "Live", color: "#0d9488" };
   }
 
   return { label: LABELS[callState] || LABELS.none, tone: callState, chip };
@@ -380,7 +380,7 @@ git commit -m "feat: add pure call/mic status helpers for the popup"
 
 **Files:**
 - Modify: `src/pages/popup.html` (indicator markup + styles + call-status.js script tag)
-- Modify: `src/scripts/ui/popup.js` (query, poll, render — inside the existing `DOMContentLoaded` handler)
+- Modify: `src/scripts/ui/popup.js` (query, poll, render - inside the existing `DOMContentLoaded` handler)
 - Modify: `eslint.config.js` (add `pickStrongestStatus`, `describeCallStatus` globals)
 
 **Interfaces:**
@@ -548,8 +548,8 @@ In `src/pages/options.html`, add this `<section>` immediately after the auto-dis
     <section class="setting-group" aria-labelledby="teams-controls-label">
       <h2 class="setting-label" id="teams-controls-label">Microsoft Teams</h2>
       <p class="setting-description" id="mic-highlight-description">
-        Highlight the Teams microphone button with a colored ring — red when muted,
-        teal when live — during calls and on the pre-join screen.
+        Highlight the Teams microphone button with a colored ring - red when muted,
+        teal when live - during calls and on the pre-join screen.
       </p>
 
       <div class="toggle-container">
@@ -704,7 +704,7 @@ Run:
 npm run lint
 npm test
 ```
-Expected: lint exit 0; all tests pass. If ESLint's new major flags anything, fix it minimally (it should not — the flat-config API is stable across 9.x). If a genuine incompatibility appears, stop and report rather than pinning blindly.
+Expected: lint exit 0; all tests pass. If ESLint's new major flags anything, fix it minimally (it should not - the flat-config API is stable across 9.x). If a genuine incompatibility appears, stop and report rather than pinning blindly.
 
 - [ ] **Step 3: Commit**
 
@@ -770,7 +770,7 @@ git commit -m "chore: release v1.7.0"
 ## Self-Review (completed by plan author)
 
 - **Spec coverage:** §4 framework → Tasks 1–2 (`TeamsSelectors` + IIFE registry). §5 highlight → Tasks 1–2. §6 indicator/messaging → Tasks 2 (handler), 3 (pure helpers), 4 (UI). §7 options toggle → Task 5. §8 storage key → Tasks 2/5. §9 manifest/permissions → Task 2. §11/§12 gotchas + tests → unit tests in Tasks 1/3, manual checklist in Task 8 mirrors spec §12. §13 lib refresh → Task 7; version bump → Task 8. Docs (spec §14) → Task 6. No gaps.
-- **Placeholder scan:** none — every code/test/step is concrete.
+- **Placeholder scan:** none - every code/test/step is concrete.
 - **Type consistency:** `TeamsSelectors` methods and `HIGHLIGHT_STYLE_ID` used in Task 2 match Task 1; `pickStrongestStatus`/`describeCallStatus` shapes used in Task 4 match Task 3; message name and `{callState, micState}` payload match across Tasks 2/4; `teamsMicHighlightEnabled` matches across Tasks 2/5.
 
 ## Manual verification checklist (run once, after Task 5 or 8)

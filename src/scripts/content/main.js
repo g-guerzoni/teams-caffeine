@@ -124,7 +124,7 @@ function checkTeamsStatus() {
   if (!presenceBadge) {
     if (!presenceLookupWarned) {
       console.warn(
-        "Teams Caffeine: Could not find the presence badge with any known selector — Teams may have changed its DOM. Passive activity simulation still runs; only the away-status corrective check is affected.",
+        "Teams Caffeine: Could not find the presence badge with any known selector. Teams may have changed its DOM. Passive activity simulation still runs. Only the away-status corrective check is affected.",
       );
       presenceLookupWarned = true;
     }
@@ -185,7 +185,7 @@ chrome.runtime?.onMessage.addListener((message) => {
       stopJiggle();
     }
   } else if (message.type === "TEAMS_CAFFEINE_HEARTBEAT") {
-    // Service-worker alarm poke — fire one activity even when this tab is
+    // Service-worker alarm poke: fire one activity even when this tab is
     // backgrounded and our own setTimeout loop is throttled.
     if (isExtensionEnabled) {
       simulateActivity();

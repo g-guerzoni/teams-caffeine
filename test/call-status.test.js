@@ -30,11 +30,11 @@ test("describeCallStatus maps state + mic to a UI descriptor", () => {
 
   const live = describeCallStatus({ callState: "in-call", micState: "live" });
   assert.equal(live.label, "In call");
-  assert.deepEqual(live.chip, { glyph: "🎤", label: "Live", color: "#0d9488" });
+  assert.deepEqual(live.chip, { icon: "mic", label: "Live", color: "#0d9488" });
 
   const prejoinMuted = describeCallStatus({ callState: "pre-join", micState: "muted" });
   assert.equal(prejoinMuted.label, "Pre-join");
-  assert.deepEqual(prejoinMuted.chip, { glyph: "🔇", label: "Muted", color: "#dc2626" });
+  assert.deepEqual(prejoinMuted.chip, { icon: "mic-off", label: "Muted", color: "#dc2626" });
 
   assert.equal(describeCallStatus({ callState: "in-call", micState: null }).chip, null);
 });

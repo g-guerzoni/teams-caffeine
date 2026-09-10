@@ -31,7 +31,7 @@ function stopHeartbeat() {
 }
 
 // Re-arm the heartbeat after a browser restart or extension update if the user left
-// the extension enabled — alarms do not reliably survive these events.
+// the extension enabled, since alarms do not reliably survive these events.
 function ensureHeartbeat() {
   ChromeUtils.storage.get(["teamsCaffeineEnabled"], (result, error) => {
     if (error) return;
@@ -103,7 +103,7 @@ function reloadTeamsTabsAndToggle(enabled) {
 
       const safetyTimeout = setTimeout(() => {
         chrome.tabs.onUpdated.removeListener(onTabUpdated);
-        ChromeUtils.debugLog("Teams Caffeine: Safety timeout — cleaned up tab listener");
+        ChromeUtils.debugLog("Teams Caffeine: Safety timeout: cleaned up tab listener");
       }, 10000);
 
       chrome.tabs.onUpdated.addListener(onTabUpdated);

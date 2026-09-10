@@ -22,8 +22,8 @@ function describeCallStatus(status) {
 
   let chip = null;
   if (callState !== "none") {
-    if (micState === "muted") chip = { glyph: "🔇", label: "Muted", color: "#dc2626" };
-    else if (micState === "live") chip = { glyph: "🎤", label: "Live", color: "#0d9488" };
+    if (micState === "muted") chip = { icon: "mic-off", label: "Muted", color: "#dc2626" };
+    else if (micState === "live") chip = { icon: "mic", label: "Live", color: "#0d9488" };
   }
 
   return { label: LABELS[callState] || LABELS.none, tone: callState, chip };
