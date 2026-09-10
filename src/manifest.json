@@ -25,7 +25,7 @@
   "content_scripts": [
     {
       "matches": ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"],
-      "js": ["scripts/utils/chrome-utils.js", "scripts/utils/timing.js", "scripts/content/main.js"]
+      "js": ["scripts/utils/chrome-utils.js", "scripts/utils/timing.js", "scripts/content/teams/selectors.js", "scripts/content/teams/teams-controls.js", "scripts/content/main.js"]
     }
   ]
 }

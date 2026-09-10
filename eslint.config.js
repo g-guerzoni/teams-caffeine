@@ -14,6 +14,7 @@ module.exports = [
         MIN_INTERVAL: "readonly",
         MAX_INTERVAL: "readonly",
         getRandomInterval: "readonly",
+        TeamsSelectors: "readonly",
         module: "readonly",
       },
     },
