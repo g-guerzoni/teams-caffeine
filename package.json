@@ -1,6 +1,6 @@
 {
   "name": "teams-caffeine",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Keep your Microsoft Teams active and prevent timeout or away status.",
   "private": true,
   "license": "MIT",

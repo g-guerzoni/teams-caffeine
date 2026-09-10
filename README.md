@@ -76,6 +76,13 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.7.0
+
+- **Mic-Button Highlight**: The Teams microphone button is ringed by mute state during calls and on the pre-join screen (red = muted, teal = live). Toggle it in the Options page.
+- **Call / Mic Indicator**: The popup now shows In call / Pre-join / Not in call and, when a mic is present, its mute status.
+- **Extensible Teams Controls**: Internal framework so more Teams controls can be added.
+- **Maintenance**: Dev dependencies updated to latest.
+
 ### v1.6.0
 
 - **Reliable Background Activity**: Added a service-worker heartbeat so activity simulation keeps running when the Teams tab is in the background, where the browser throttles page timers.
