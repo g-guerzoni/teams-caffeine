@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusInfo = document.getElementById("status-info");
   const timerStatus = document.getElementById("timer-status");
   const saveStatus = document.getElementById("save-status");
+  const micHighlightToggle = document.getElementById("mic-highlight-toggle");
 
   function updateTimeSelector() {
     const isEnabled = autoDisableToggle.checked;
@@ -115,21 +116,25 @@ document.addEventListener("DOMContentLoaded", () => {
   ChromeUtils.storage.get([
     "debugModeEnabled",
     "autoDisableEnabled",
-    "autoDisableHours"
+    "autoDisableHours",
+    "teamsMicHighlightEnabled"
   ], (result, error) => {
     if (error) {
       console.error("Teams Caffeine: Failed to load settings, using defaults");
       debugModeToggle.checked = false;
       autoDisableToggle.checked = false;
       hoursSelect.value = 4;
+      micHighlightToggle.checked = true;
     } else {
       debugModeToggle.checked = result.debugModeEnabled || false;
       autoDisableToggle.checked = result.autoDisableEnabled || false;
       hoursSelect.value = result.autoDisableHours || 4;
+      micHighlightToggle.checked = result.teamsMicHighlightEnabled !== false;
     }
 
     debugModeToggle.setAttribute("aria-checked", debugModeToggle.checked ? "true" : "false");
     autoDisableToggle.setAttribute("aria-checked", autoDisableToggle.checked ? "true" : "false");
+    micHighlightToggle.setAttribute("aria-checked", micHighlightToggle.checked ? "true" : "false");
 
     updateTimeSelector();
     updateTimerStatus();
@@ -137,6 +142,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   debugModeToggle.addEventListener("change", () => {
     saveDebugMode();
+  });
+
+  micHighlightToggle.addEventListener("change", () => {
+    const isEnabled = micHighlightToggle.checked;
+    micHighlightToggle.setAttribute("aria-checked", isEnabled ? "true" : "false");
+    ChromeUtils.storage.set({ teamsMicHighlightEnabled: isEnabled }, (error) => {
+      if (error) {
+        console.error("Teams Caffeine: Failed to save mic highlight setting");
+        return;
+      }
+      showSaveStatus();
+    });
   });
 
   autoDisableToggle.addEventListener("change", () => {
