@@ -1,0 +1,16 @@
+{
+  "name": "teams-caffeine",
+  "version": "1.6.0",
+  "description": "Keep your Microsoft Teams active and prevent timeout or away status.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "node --test",
+    "build": "./build.sh"
+  },
+  "devDependencies": {
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0"
+  }
+}

@@ -29,25 +29,32 @@ Teams Caffeine is a lightweight browser extension that keeps your Microsoft Team
 ### Manual load
 
 1. Go to chrome://extensions/
-2. Enable the "develop mode""
-3. Go to "Load unpacked""
+2. Enable "Developer mode"
+3. Click "Load unpacked"
 4. Select the `src` folder
 
 ### Build
 
-```bash
-# Clone the repository
-git clone https://github.com/g-guerzoni/teams-caffeine.git
+Building the extension needs no dependencies — it simply zips `src/` into `chrome.zip`:
 
-# Navigate to the project directory
+```bash
+git clone https://github.com/g-guerzoni/teams-caffeine.git
 cd teams-caffeine
 
-# Install dependencies (if any)
-npm install
+./build.sh   # macOS/Linux
+build.bat    # Windows
+```
 
-# Build the extension
-./build.sh  # For Mac/Linux
-build.bat   # For Windows
+The resulting `chrome.zip` can be uploaded to the Chrome Web Store or loaded unpacked.
+
+### Development
+
+Linting and tests use dev-only tooling (there are no runtime dependencies):
+
+```bash
+npm install   # installs ESLint and test tooling
+npm run lint  # lint src/
+npm test      # run unit tests (node --test)
 ```
 
 ## Privacy Policy
@@ -65,6 +72,12 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 ---
 
 ## Changelog
+
+### v1.6.0
+
+- **Reliable Background Activity**: Added a service-worker heartbeat so activity simulation keeps running when the Teams tab is in the background, where the browser throttles page timers.
+- **Resilient Status Detection**: Presence detection now tries multiple selectors and warns visibly if Teams changes its layout, instead of failing silently.
+- **Developer Tooling**: Added ESLint and unit tests (no runtime dependencies) and corrected the setup/build documentation.
 
 ### v1.5.0
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Teams Caffeine",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Keep your Microsoft Teams active and prevent timeout or away status.",
   "icons": {
     "48": "images/48.png",
@@ -25,7 +25,7 @@
   "content_scripts": [
     {
       "matches": ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"],
-      "js": ["scripts/utils/chrome-utils.js", "scripts/content/main.js"]
+      "js": ["scripts/utils/chrome-utils.js", "scripts/utils/timing.js", "scripts/content/main.js"]
     }
   ]
 }

@@ -3,6 +3,44 @@ importScripts("../utils/chrome-utils.js");
 
 const TEAMS_URLS = ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"];
 
+const HEARTBEAT_ALARM = "activityHeartbeat";
+// A service-worker alarm is not subject to background-tab timer throttling, so it
+// drives activity when the Teams tab is hidden and the content script's own
+// setTimeout loop is throttled. Chrome clamps periodInMinutes below 0.5 up to 1 on
+// versions < 120; either value is comfortably under Teams' ~5-minute idle threshold.
+const HEARTBEAT_PERIOD_MINUTES = 0.5;
+
+function startHeartbeat() {
+  ChromeUtils.alarms.create(HEARTBEAT_ALARM, { periodInMinutes: HEARTBEAT_PERIOD_MINUTES }, (error) => {
+    if (error) {
+      console.error("Teams Caffeine: Error creating heartbeat alarm:", error);
+      return;
+    }
+    ChromeUtils.debugLog("Teams Caffeine: Activity heartbeat started");
+  });
+}
+
+function stopHeartbeat() {
+  ChromeUtils.alarms.clear(HEARTBEAT_ALARM, (wasCleared, error) => {
+    if (error) {
+      console.error("Teams Caffeine: Error clearing heartbeat alarm:", error);
+      return;
+    }
+    ChromeUtils.debugLog("Teams Caffeine: Activity heartbeat stopped");
+  });
+}
+
+// Re-arm the heartbeat after a browser restart or extension update if the user left
+// the extension enabled — alarms do not reliably survive these events.
+function ensureHeartbeat() {
+  ChromeUtils.storage.get(["teamsCaffeineEnabled"], (result, error) => {
+    if (error) return;
+    if (result.teamsCaffeineEnabled !== false) {
+      startHeartbeat();
+    }
+  });
+}
+
 function sendMessageToTeamsTabs(message) {
   if (!message || typeof message !== "object") {
     console.error("Teams Caffeine: Invalid message parameter");
@@ -132,6 +170,7 @@ function handleAutoDisable() {
     }
 
     reloadTeamsTabsAndToggle(false);
+    stopHeartbeat();
 
     ChromeUtils.storage.remove(["autoDisableStartTime"], (error) => {
       if (!error) {
@@ -144,6 +183,8 @@ function handleAutoDisable() {
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "autoDisableTeamsCaffeine") {
     handleAutoDisable();
+  } else if (alarm.name === HEARTBEAT_ALARM) {
+    sendMessageToTeamsTabs({ type: "TEAMS_CAFFEINE_HEARTBEAT" });
   }
 });
 
@@ -154,6 +195,7 @@ chrome.runtime.onMessage.addListener((message) => {
     reloadTeamsTabsAndToggle(enabled);
 
     if (enabled) {
+      startHeartbeat();
       ChromeUtils.storage.get(["autoDisableEnabled", "autoDisableHours"], (result, error) => {
         if (error) {
           console.error("Teams Caffeine: Error reading auto-disable settings:", error);
@@ -170,6 +212,7 @@ chrome.runtime.onMessage.addListener((message) => {
         }
       });
     } else {
+      stopHeartbeat();
       stopAutoDisableTimer();
     }
   } else if (message.type === "AUTO_DISABLE_SETTINGS_CHANGED") {
@@ -196,3 +239,6 @@ chrome.runtime.onMessage.addListener((message) => {
     }
   }
 });
+
+chrome.runtime.onStartup.addListener(ensureHeartbeat);
+chrome.runtime.onInstalled.addListener(ensureHeartbeat);

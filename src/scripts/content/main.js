@@ -1,15 +1,10 @@
-const MIN_INTERVAL = 8;
-const MAX_INTERVAL = 12;
+// MIN_INTERVAL, MAX_INTERVAL and getRandomInterval() are provided by
+// scripts/utils/timing.js, which is injected before this file (see manifest.json).
 const STATUS_CHECK_INTERVAL = 5 * 60 * 1000;
 
 let intervalId = null;
 let statusCheckIntervalId = null;
-let isTabVisible = true;
 let isExtensionEnabled = false;
-
-function getRandomInterval() {
-  return (MIN_INTERVAL + Math.random() * (MAX_INTERVAL - MIN_INTERVAL)) * 1000;
-}
 
 function startJiggle() {
   if (intervalId === null) {
@@ -97,27 +92,57 @@ function simulateScroll() {
   setTimeout(() => window.scrollBy(0, -scrollAmount), 100);
 }
 
+// Teams rotates its internal class names, so try several selectors from most to
+// least specific. If Microsoft changes the DOM and none match, surface a real
+// warning (not a debug-only log) so the breakage is visible.
+const PRESENCE_SELECTORS = [
+  '[aria-label][role="img"][id*="avatar"][class*="PresenceBadge"]',
+  '[class*="PresenceBadge"][aria-label]',
+  '[data-tid*="presence"][aria-label]',
+  '[id*="avatar"][role="img"][aria-label]',
+];
+
+let presenceLookupWarned = false;
+
+function findPresenceBadge() {
+  for (const selector of PRESENCE_SELECTORS) {
+    const element = document.querySelector(selector);
+    if (element && element.getAttribute("aria-label")) {
+      return element;
+    }
+  }
+  return null;
+}
+
 function checkTeamsStatus() {
   if (!isExtensionEnabled) {
     return;
   }
-  
-  const presenceBadge = document.querySelector('[aria-label][role="img"][id*="avatar"][class*="PresenceBadge"]');
-  
-  if (presenceBadge) {
-    const ariaLabel = presenceBadge.getAttribute("aria-label");
-    const isAway = ariaLabel && (ariaLabel.toLowerCase().includes("away") || ariaLabel.toLowerCase().includes("offline"));
-    
-    if (isAway) {
-      ChromeUtils.debugLog("Teams Caffeine: Status check detected away/offline status, triggering activity");
-      simulateActivity();
-      setTimeout(() => simulateActivity(), 2000);
-      setTimeout(() => simulateActivity(), 4000);
-    } else {
-      ChromeUtils.debugLog(`Teams Caffeine: Status check - current status: ${ariaLabel}`);
+
+  const presenceBadge = findPresenceBadge();
+
+  if (!presenceBadge) {
+    if (!presenceLookupWarned) {
+      console.warn(
+        "Teams Caffeine: Could not find the presence badge with any known selector — Teams may have changed its DOM. Passive activity simulation still runs; only the away-status corrective check is affected.",
+      );
+      presenceLookupWarned = true;
     }
+    return;
+  }
+
+  presenceLookupWarned = false;
+
+  const ariaLabel = presenceBadge.getAttribute("aria-label");
+  const isAway = ariaLabel && (ariaLabel.toLowerCase().includes("away") || ariaLabel.toLowerCase().includes("offline"));
+
+  if (isAway) {
+    ChromeUtils.debugLog("Teams Caffeine: Status check detected away/offline status, triggering activity");
+    simulateActivity();
+    setTimeout(() => simulateActivity(), 2000);
+    setTimeout(() => simulateActivity(), 4000);
   } else {
-    ChromeUtils.debugLog("Teams Caffeine: Status check - presence badge not found");
+    ChromeUtils.debugLog(`Teams Caffeine: Status check - current status: ${ariaLabel}`);
   }
 }
 
@@ -136,25 +161,6 @@ function stopStatusMonitoring() {
   }
 }
 
-function handleVisibilityChange() {
-  isTabVisible = !document.hidden;
-  if (!isTabVisible) {
-    ChromeUtils.debugLog("Teams Caffeine: Tab hidden, continuing activity simulation");
-  } else {
-    ChromeUtils.debugLog("Teams Caffeine: Tab visible, continuing activity simulation");
-  }
-}
-
-document.addEventListener("visibilitychange", handleVisibilityChange);
-window.addEventListener("focus", () => {
-  isTabVisible = true;
-  ChromeUtils.debugLog("Teams Caffeine: Window focused, continuing activity simulation");
-});
-window.addEventListener("blur", () => {
-  isTabVisible = false;
-  ChromeUtils.debugLog("Teams Caffeine: Window blurred, continuing activity simulation");
-});
-
 ChromeUtils.storage.get(["teamsCaffeineEnabled"], (result, error) => {
   if (error) {
     console.error("Teams Caffeine: Failed to load extension state, defaulting to disabled");
@@ -170,13 +176,19 @@ ChromeUtils.storage.get(["teamsCaffeineEnabled"], (result, error) => {
   }
 });
 
-chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime?.onMessage.addListener((message) => {
   if (message.type === "TEAMS_CAFFEINE_STATE") {
     isExtensionEnabled = message.enabled;
     if (message.enabled) {
       startJiggle();
     } else {
       stopJiggle();
+    }
+  } else if (message.type === "TEAMS_CAFFEINE_HEARTBEAT") {
+    // Service-worker alarm poke — fire one activity even when this tab is
+    // backgrounded and our own setTimeout loop is throttled.
+    if (isExtensionEnabled) {
+      simulateActivity();
     }
   }
 });
