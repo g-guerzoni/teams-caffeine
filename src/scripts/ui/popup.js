@@ -5,6 +5,54 @@ document.addEventListener("DOMContentLoaded", () => {
   const settingsIcon = document.getElementById("settings-icon");
   const warningMessage = document.getElementById("warning-message");
 
+  const TEAMS_URLS = [
+    "https://teams.live.com/*",
+    "https://teams.microsoft.com/*",
+    "https://teams.cloud.microsoft/*",
+  ];
+  const callStatusEl = document.getElementById("call-status");
+  const callLabelEl = document.getElementById("call-label");
+  const micChipEl = document.getElementById("mic-chip");
+
+  function renderCallStatus(callStatus) {
+    const view = describeCallStatus(callStatus);
+    callStatusEl.classList.remove("tone-in-call", "tone-pre-join", "tone-none");
+    callStatusEl.classList.add(`tone-${view.tone}`);
+    callLabelEl.textContent = view.label;
+    if (view.chip) {
+      micChipEl.textContent = `${view.chip.glyph} ${view.chip.label}`;
+      micChipEl.style.color = view.chip.color;
+      micChipEl.hidden = false;
+    } else {
+      micChipEl.hidden = true;
+    }
+  }
+
+  function refreshCallStatus() {
+    if (!(typeof chrome !== "undefined" && chrome.tabs)) {
+      renderCallStatus({ callState: "none", micState: null });
+      return;
+    }
+    chrome.tabs.query({ url: TEAMS_URLS }, (tabs) => {
+      if (chrome.runtime.lastError || !tabs || !tabs.length) {
+        renderCallStatus({ callState: "none", micState: null });
+        return;
+      }
+      const replies = [];
+      let pending = tabs.length;
+      const done = () => {
+        pending -= 1;
+        if (pending === 0) renderCallStatus(pickStrongestStatus(replies));
+      };
+      for (const tab of tabs) {
+        ChromeUtils.tabs.sendMessage(tab.id, { type: "TEAMS_CAFFEINE_GET_CALL_STATUS" }, (response) => {
+          if (response) replies.push(response);
+          done();
+        });
+      }
+    });
+  }
+
   function updateStatus(isOn) {
     status.textContent = isOn ? "ON" : "OFF";
     toggle.setAttribute("aria-checked", isOn ? "true" : "false");
@@ -92,4 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.runtime.openOptionsPage();
     }
   });
+
+  refreshCallStatus();
+  setInterval(refreshCallStatus, 1000);
 });

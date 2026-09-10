@@ -15,6 +15,8 @@ module.exports = [
         MAX_INTERVAL: "readonly",
         getRandomInterval: "readonly",
         TeamsSelectors: "readonly",
+        pickStrongestStatus: "readonly",
+        describeCallStatus: "readonly",
         module: "readonly",
       },
     },
