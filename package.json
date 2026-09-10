@@ -10,7 +10,7 @@
     "build": "./build.sh"
   },
   "devDependencies": {
-    "eslint": "^9.13.0",
-    "globals": "^15.11.0"
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0"
   }
 }
