@@ -188,7 +188,11 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender) => {
+  // Only the popup and options pages drive these actions; those have no sender.tab.
+  // Reject anything originating from a content script (defense in depth).
+  if (sender.tab) return;
+
   if (message.type === "TEAMS_CAFFEINE_TOGGLE") {
     const enabled = message.enabled === true;
 
