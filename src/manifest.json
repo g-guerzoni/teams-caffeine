@@ -21,7 +21,8 @@
     "service_worker": "scripts/background/background.js"
   },
   "options_page": "pages/options.html",
-  "permissions": ["storage", "alarms", "tabs"],
+  "permissions": ["storage", "alarms"],
+  "host_permissions": ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"],
   "content_scripts": [
     {
       "matches": ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"],
