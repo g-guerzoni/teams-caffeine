@@ -6,6 +6,13 @@ let intervalId = null;
 let statusCheckIntervalId = null;
 let isExtensionEnabled = false;
 
+function isExtensionContextValid() {
+  // After the extension reloads or updates, old content scripts are orphaned:
+  // chrome.runtime.id becomes undefined and any chrome.* call throws
+  // "Extension context invalidated". Guard on it so the loops stop cleanly.
+  return Boolean(chrome.runtime && chrome.runtime.id);
+}
+
 function startJiggle() {
   if (intervalId === null) {
     scheduleNextActivity();
@@ -28,6 +35,10 @@ function scheduleNextActivity() {
   
   const delay = getRandomInterval();
   intervalId = setTimeout(() => {
+    if (!isExtensionContextValid()) {
+      stopJiggle();
+      return;
+    }
     simulateActivity();
     scheduleNextActivity();
   }, delay);
@@ -116,6 +127,11 @@ function findPresenceBadge() {
 
 function checkTeamsStatus() {
   if (!isExtensionEnabled) {
+    return;
+  }
+
+  if (!isExtensionContextValid()) {
+    stopStatusMonitoring();
     return;
   }
 

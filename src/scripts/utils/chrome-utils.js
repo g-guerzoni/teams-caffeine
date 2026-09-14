@@ -2,6 +2,9 @@
 const ChromeUtils = {
   // Debug logging utility
   debugLog: (...args) => {
+    // Skip when the extension context is gone (orphaned content script), so we do
+    // not throw from chrome.storage on every call.
+    if (!(chrome.runtime && chrome.runtime.id)) return;
     ChromeUtils.storage.get(["debugModeEnabled"], (result, error) => {
       if (!error && result.debugModeEnabled) {
         console.log(...args);
