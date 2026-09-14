@@ -1,3 +1,4 @@
+/* global importScripts */
 // Import utilities for error handling
 importScripts("../utils/chrome-utils.js");
 

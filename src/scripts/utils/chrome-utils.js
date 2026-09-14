@@ -45,39 +45,27 @@ const ChromeUtils = {
       }
     },
     
-    set: (data, callback) => {
+    // Shared implementation for set and remove (same signature and error shape).
+    _write: (op, arg, callback) => {
       try {
-        chrome.storage.local.set(data, () => {
+        chrome.storage.local[op](arg, () => {
           if (chrome.runtime.lastError) {
             const errorMsg = ChromeUtils._formatError(chrome.runtime.lastError);
-            console.error("Teams Caffeine: Storage set error:", errorMsg);
-            callback && callback(chrome.runtime.lastError);
-          } else {
-            callback && callback(null);
+            console.error(`Teams Caffeine: Storage ${op} error:`, errorMsg);
+            if (callback) callback(chrome.runtime.lastError);
+          } else if (callback) {
+            callback(null);
           }
         });
       } catch (error) {
-        console.error("Teams Caffeine: Storage set exception:", ChromeUtils._formatError(error));
-        callback && callback(error);
+        console.error(`Teams Caffeine: Storage ${op} exception:`, ChromeUtils._formatError(error));
+        if (callback) callback(error);
       }
     },
-    
-    remove: (keys, callback) => {
-      try {
-        chrome.storage.local.remove(keys, () => {
-          if (chrome.runtime.lastError) {
-            const errorMsg = ChromeUtils._formatError(chrome.runtime.lastError);
-            console.error("Teams Caffeine: Storage remove error:", errorMsg);
-            callback && callback(chrome.runtime.lastError);
-          } else {
-            callback && callback(null);
-          }
-        });
-      } catch (error) {
-        console.error("Teams Caffeine: Storage remove exception:", ChromeUtils._formatError(error));
-        callback && callback(error);
-      }
-    }
+
+    set: (data, callback) => ChromeUtils.storage._write("set", data, callback),
+
+    remove: (keys, callback) => ChromeUtils.storage._write("remove", keys, callback)
   },
   
   runtime: {
@@ -95,14 +83,14 @@ const ChromeUtils = {
               console.debug("Teams Caffeine: Message that failed:", message);
             }
             
-            callback && callback(null, chrome.runtime.lastError);
+            if (callback) callback(null, chrome.runtime.lastError);
           } else {
-            callback && callback(response, null);
+            if (callback) callback(response, null);
           }
         });
       } catch (error) {
         console.error("Teams Caffeine: Runtime message send exception:", ChromeUtils._formatError(error));
-        callback && callback(null, error);
+        if (callback) callback(null, error);
       }
     }
   },
@@ -115,14 +103,14 @@ const ChromeUtils = {
             const errorMsg = ChromeUtils._formatError(chrome.runtime.lastError);
             // Content script not ready - this is normal, log as debug
             console.debug(`Teams Caffeine: Could not send message to tab ${tabId}: ${errorMsg}`);
-            callback && callback(null, chrome.runtime.lastError);
+            if (callback) callback(null, chrome.runtime.lastError);
           } else {
-            callback && callback(response, null);
+            if (callback) callback(response, null);
           }
         });
       } catch (error) {
         console.error("Teams Caffeine: Tab message send exception:", ChromeUtils._formatError(error));
-        callback && callback(null, error);
+        if (callback) callback(null, error);
       }
     }
   },
@@ -132,10 +120,10 @@ const ChromeUtils = {
       try {
         chrome.alarms.create(name, alarmInfo);
         // Note: chrome.alarms.create doesn't have a callback, but we provide consistency
-        callback && callback(null);
+        if (callback) callback(null);
       } catch (error) {
         console.error("Teams Caffeine: Alarm create exception:", ChromeUtils._formatError(error));
-        callback && callback(error);
+        if (callback) callback(error);
       }
     },
     
@@ -145,14 +133,14 @@ const ChromeUtils = {
           if (chrome.runtime.lastError) {
             const errorMsg = ChromeUtils._formatError(chrome.runtime.lastError);
             console.error("Teams Caffeine: Alarm clear error:", errorMsg);
-            callback && callback(false, chrome.runtime.lastError);
+            if (callback) callback(false, chrome.runtime.lastError);
           } else {
-            callback && callback(wasCleared, null);
+            if (callback) callback(wasCleared, null);
           }
         });
       } catch (error) {
         console.error("Teams Caffeine: Alarm clear exception:", ChromeUtils._formatError(error));
-        callback && callback(false, error);
+        if (callback) callback(false, error);
       }
     }
   }
