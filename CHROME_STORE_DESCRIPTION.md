@@ -1,43 +1,30 @@
-# Chrome Web Store Listing
+Keep your Microsoft Teams active and prevent timeout or away status.
 
-Plain text, paste-ready. The store does not render Markdown, so the content below is
-written as it should appear. Copy each block into the matching field in the Developer
-Dashboard. The `##` lines are labels for this file, not part of the text you paste.
+Never appear "Away" on Microsoft Teams again! Teams Caffeine keeps your status active automatically, preventing timeouts and inactivity indicators.
 
-## Name
+Tired of your Microsoft Teams status switching to "Away" just because you stepped away for a moment or got deep into focused work? Teams Caffeine is here to help!
 
-Set by manifest.json "name". Currently: Teams Caffeine
-To use a longer name, change "name" in the manifest (max 75 characters).
+Teams Caffeine is a simple, lightweight browser extension designed to keep your Microsoft Teams status consistently active. It works discreetly in the background by simulating subtle mouse movements on Teams pages at regular intervals, ensuring you always appear available when you need to be.
 
-## Summary (plain text, 132 characters max)
+Install Teams Caffeine today and keep your Teams status reliably active!
 
-Never appear "Away" on Microsoft Teams again. Keep your status active and see your call and mic status at a glance.
+Perfect for:
+- Remote workers who need to maintain an active presence.
+- Anyone who wants to avoid constant status changes during periods of reading, thinking, or brief breaks.
 
-## Detailed description (plain text, up to 16,000 characters)
+Key Features:
+- Stay Active: Reliably prevents your Teams status from changing to "Away" or "Inactive".
+- Mute at a Glance: During calls, the mic button is highlighted red when muted and teal when live, and the popup and toolbar icon show your call and mic status.
+- Seamless Operation: Runs quietly in the background without interrupting your workflow.
+- Easy to Use: Simply toggle the extension on or off via the toolbar icon.
+- Privacy First: We respect your privacy. Teams Caffeine requires minimal permissions and does not track, collect, or store any of your data. All activity simulation happens locally on your machine.
+- Lightweight: Designed to be efficient and not slow down your browser.
 
-Tired of your Microsoft Teams status switching to "Away" just because you stepped away for a moment or got deep into focused work? Teams Caffeine keeps your status active.
+IMPORTANT NOTES:
+- It works on the Teams web app (teams.microsoft.com, teams.live.com, and teams.cloud.microsoft).
+- This won't stop your computer from going to sleep or locking automatically. To prevent this, please configure your computer settings accordingly.
+     - For Mac users: I recommend using Amphetamine
+     - For Windows users: I recommend using Caffeine
 
-Teams Caffeine is a lightweight browser extension that keeps your Microsoft Teams status consistently active. It works in the background by simulating subtle mouse movements on Teams pages at regular intervals, so you appear available when you need to be.
-
-Key features
-
-• Stay active: prevents your Teams status from going "Away" or "Inactive".
-• Call and mic status: highlights the Teams mic button by mute state and shows your call and mic status in the popup and on the toolbar icon (red muted, teal live).
-• Auto-disable timer: turn the extension off automatically after 1 to 24 hours.
-• Privacy first: minimal Teams-only permissions, no tracking, everything runs locally.
-
-How it works
-
-Teams Caffeine simulates tiny mouse movements within the Microsoft Teams web app (teams.live.com, teams.microsoft.com, and teams.cloud.microsoft) to mimic activity, so Teams sees you as active. During calls it can also ring the microphone button by mute state, and the popup and toolbar icon show your current call and mic status. Everything runs locally in your browser.
-
-Perfect for
-
-• Remote workers who need an active presence during work hours.
-• Anyone who wants to avoid status changes during reading, thinking, or short breaks.
-• People who value privacy and want a simple, focused tool.
-
-Install Teams Caffeine and keep your Teams status reliably active.
-
-## Search terms (reference only, the store has no keywords field)
-
-microsoft teams, stay active, prevent timeout, away status, teams status, mic status, mute indicator, in call indicator, keep teams awake, remote work, productivity
+Keywords:
+microsoft teams, teams extension, stay active, prevent timeout, teams status, active status, browser extension, chrome extension, teams caffeine, teams activity, prevent away status, microsoft teams extension, productivity tool, work from home, remote work, keep teams awake, teams awake, awake, teams sleep, mic status, mute indicator
