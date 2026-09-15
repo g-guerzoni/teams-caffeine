@@ -78,7 +78,8 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ### v1.7.1
 
-- **Cleaner Status Icons**: The popup call and mic status use simple icons instead of emoji, with the mic state shown on its own line below the call state.
+- **Toolbar Status Dot**: While you are in a Teams call, the extension icon shows a status dot, red when muted and teal when live.
+- **Cleaner Status Icons**: The popup call and mic status use simple icons instead of emoji, centered, with the mic state on its own line below the call state.
 - **Tighter Permissions**: Replaced the broad `tabs` permission with access scoped to the Microsoft Teams domains only.
 - **Stability**: The content script now stops cleanly when the extension is reloaded or updated, instead of logging errors on already-open tabs.
 - **Hardening**: Removed a DOM injection point in the popup, restricted privileged background messages to the extension's own pages, and de-duplicated the storage helpers.

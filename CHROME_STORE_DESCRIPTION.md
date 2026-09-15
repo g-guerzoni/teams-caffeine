@@ -15,6 +15,7 @@ Teams Caffeine is a simple, lightweight browser extension designed to keep your 
 - **Stay Active:** Reliably prevents your Teams status from changing to "Away" or "Inactive".
 - **Mic Button Highlight:** Rings the Teams microphone button by state during calls, red when muted and teal when live, so a glance tells you whether you are on mute.
 - **Call & Mic Status:** The popup shows whether you are in a call or on the pre-join screen, along with your current mic status.
+- **Toolbar Status Dot:** While you are in a call, the extension icon shows a dot, red when muted and teal when live.
 - **Auto-Disable Timer:** Set the extension to automatically turn off after 1-24 hours for responsible usage.
 - **Seamless Operation:** Runs quietly in the background without interrupting your workflow.
 - **Easy to Use:** Simply toggle the extension on or off via the toolbar icon. Access settings through the gear icon for advanced options.
