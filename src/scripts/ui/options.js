@@ -34,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (result.autoDisableStartTime && result.autoDisableHours) {
         const startTime = new Date(result.autoDisableStartTime);
         
-        // Validate date
         if (isNaN(startTime.getTime())) {
           console.warn("Teams Caffeine: Invalid start time in storage");
           statusInfo.classList.remove("visible");
@@ -83,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveSettings() {
     const hours = parseInt(hoursSelect.value);
     
-    // Validate hours input
     if (isNaN(hours) || hours < 1 || hours > 24) {
       console.error("Teams Caffeine: Invalid hours value:", hoursSelect.value);
       return;

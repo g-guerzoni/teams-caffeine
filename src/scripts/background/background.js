@@ -1,5 +1,4 @@
 /* global importScripts */
-// Import utilities for error handling
 importScripts("../utils/chrome-utils.js");
 
 const TEAMS_URLS = ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"];
@@ -117,7 +116,6 @@ function reloadTeamsTabsAndToggle(enabled) {
 }
 
 function startAutoDisableTimer(hours) {
-  // Validate input
   if (!hours || typeof hours !== "number" || hours <= 0 || hours > 24) {
     console.error("Teams Caffeine: Invalid hours parameter for auto-disable timer:", hours);
     return false;
