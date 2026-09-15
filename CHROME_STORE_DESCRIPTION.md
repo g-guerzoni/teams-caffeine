@@ -25,6 +25,3 @@ IMPORTANT NOTES:
 - This won't stop your computer from going to sleep or locking automatically. To prevent this, please configure your computer settings accordingly.
      - For Mac users: I recommend using Amphetamine
      - For Windows users: I recommend using Caffeine
-
-Keywords:
-microsoft teams, teams extension, stay active, prevent timeout, teams status, active status, browser extension, chrome extension, teams caffeine, teams activity, prevent away status, microsoft teams extension, productivity tool, work from home, remote work, keep teams awake, teams awake, awake, teams sleep, mic status, mute indicator
