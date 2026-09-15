@@ -112,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         updateStatus(isOn);
         
-        // Show warning when enabling the extension
         if (isOn) {
           showWarning();
         }

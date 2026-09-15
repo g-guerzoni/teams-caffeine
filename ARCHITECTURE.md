@@ -71,7 +71,7 @@ teams-caffeine/
 
 - **manifest.json**: Manifest V3 configuration defining:
   - Extension metadata (name, version, description)
-  - Permissions (storage, alarms, tabs)
+  - Permissions (storage, alarms) plus host_permissions scoped to the Teams domains
   - Content scripts targeting the Teams domains (`chrome-utils.js`, `timing.js`, `teams/selectors.js`, `teams/teams-controls.js`, then `main.js`)
   - Background service worker
   - Extension icons, popup, and options page
@@ -99,6 +99,7 @@ teams-caffeine/
   - Fires a single activity on each `TEAMS_CAFFEINE_HEARTBEAT` message from the service worker
   - Monitors Teams presence status every 5 minutes, trying multiple selectors and warning if none match
   - Responds to extension state changes
+  - Stops its loops when the extension context is invalidated (after a reload or update), instead of throwing on an orphaned tab
 - **teams/selectors.js**: The single quarantined source of Teams DOM knowledge, exposed as one global `TeamsSelectors` (mic-button selectors, ring colors, `buildHighlightCss()`, and the `readCallState()` / `readMicState()` readers). UMD-guarded for Node unit tests.
 - **teams/teams-controls.js**: An IIFE (leaks no globals) holding the extensible `FEATURES` registry. Ships the **mic-button highlight** (pure attribute-keyed CSS ring, red = muted / teal = live), toggled live via the `teamsMicHighlightEnabled` setting, and answers the popup's `TEAMS_CAFFEINE_GET_CALL_STATUS` query. Runs independently of the caffeine on/off state, alongside `main.js`.
 
@@ -116,7 +117,7 @@ teams-caffeine/
 
 ### Extension Type
 
-Teams Caffeine is a Chrome Extension built on Manifest V3, providing a modern service-worker security model, restricted permissions (`storage`, `alarms`, `tabs`), and content-script injection only on Teams domains.
+Teams Caffeine is a Chrome Extension built on Manifest V3, providing a modern service-worker security model, restricted permissions (`storage`, `alarms`) with tab access scoped to the Teams domains via `host_permissions`, and content-script injection only on Teams domains.
 
 ### Communication Flow
 
@@ -134,8 +135,11 @@ Content-script `setTimeout`/`setInterval` are throttled (and the tab may be froz
 
 ### Security Considerations
 
-- Minimal permissions (storage, alarms, tabs)
+- Minimal permissions (storage, alarms); tab access scoped to the Teams domains via `host_permissions` rather than the broad `tabs` permission
 - Content scripts injected only on Teams domains
+- Privileged background messages (toggle, settings) reject content-script senders
+- The popup renders status via DOM APIs and `textContent`, with no `innerHTML` sink
+- Content scripts stop their loops when the extension context is invalidated (reload or update), rather than throwing on orphaned tabs
 - No external network requests, no remote code, no analytics
 - All data stored locally via the Chrome storage API
 

@@ -62,4 +62,26 @@
       });
     }
   });
+
+  // Report call and mic state to the service worker whenever it changes, so it can
+  // show the status dot on the toolbar icon. Only sends on change, so the service
+  // worker can still suspend between updates.
+  let lastReportedCall = null;
+  let lastReportedMic = null;
+
+  function reportCallStatus() {
+    if (!(chrome.runtime && chrome.runtime.id)) {
+      clearInterval(statusReportTimer);
+      return;
+    }
+    const callState = TeamsSelectors.readCallState();
+    const micState = TeamsSelectors.readMicState();
+    if (callState === lastReportedCall && micState === lastReportedMic) return;
+    lastReportedCall = callState;
+    lastReportedMic = micState;
+    ChromeUtils.runtime.sendMessage({ type: "TEAMS_CAFFEINE_STATUS_REPORT", callState, micState });
+  }
+
+  const statusReportTimer = setInterval(reportCallStatus, 2000);
+  reportCallStatus();
 })();

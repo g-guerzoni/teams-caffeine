@@ -1,6 +1,5 @@
-// Chrome API utilities with comprehensive error handling
+// Chrome API wrappers with error handling.
 const ChromeUtils = {
-  // Debug logging utility
   debugLog: (...args) => {
     // Skip when the extension context is gone (orphaned content script), so we do
     // not throw from chrome.storage on every call.
@@ -11,14 +10,11 @@ const ChromeUtils = {
       }
     });
   },
-  // Helper function to format error messages properly
   _formatError: (error) => {
     if (!error) return "Unknown error";
     
-    // Handle Chrome runtime.lastError structure
     if (error.message) return error.message;
     
-    // Handle nested error objects
     if (typeof error === "object") {
       try {
         return JSON.stringify(error);

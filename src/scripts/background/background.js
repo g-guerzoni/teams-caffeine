@@ -1,5 +1,4 @@
 /* global importScripts */
-// Import utilities for error handling
 importScripts("../utils/chrome-utils.js");
 
 const TEAMS_URLS = ["https://teams.live.com/*", "https://teams.microsoft.com/*", "https://teams.cloud.microsoft/*"];
@@ -117,7 +116,6 @@ function reloadTeamsTabsAndToggle(enabled) {
 }
 
 function startAutoDisableTimer(hours) {
-  // Validate input
   if (!hours || typeof hours !== "number" || hours <= 0 || hours > 24) {
     console.error("Teams Caffeine: Invalid hours parameter for auto-disable timer:", hours);
     return false;
@@ -189,7 +187,46 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
+// Toolbar badge: a status dot on the extension icon while in a Teams call, red when
+// muted and teal when live. Chrome draws the badge in the icon's corner.
+const tabCallStatus = new Map();
+
+function refreshBadge() {
+  let anyInCall = false;
+  let anyMuted = false;
+  for (const status of tabCallStatus.values()) {
+    if (status.callState === "in-call") {
+      anyInCall = true;
+      if (status.micState === "muted") anyMuted = true;
+    }
+  }
+  if (!anyInCall) {
+    chrome.action.setBadgeText({ text: "" });
+    return;
+  }
+  chrome.action.setBadgeBackgroundColor({ color: anyMuted ? "#dc2626" : "#0d9488" });
+  chrome.action.setBadgeText({ text: " " });
+}
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  if (tabCallStatus.delete(tabId)) {
+    refreshBadge();
+  }
+});
+
 chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message.type === "TEAMS_CAFFEINE_STATUS_REPORT") {
+    if (sender.tab) {
+      if (message.callState === "in-call") {
+        tabCallStatus.set(sender.tab.id, { callState: message.callState, micState: message.micState });
+      } else {
+        tabCallStatus.delete(sender.tab.id);
+      }
+      refreshBadge();
+    }
+    return;
+  }
+
   // Only the popup and options pages drive these actions; those have no sender.tab.
   // Reject anything originating from a content script (defense in depth).
   if (sender.tab) return;
