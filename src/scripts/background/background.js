@@ -232,19 +232,25 @@ async function drawStatusDot(color) {
 }
 
 function refreshStatusIcon() {
-  let anyInCall = false;
-  let anyMuted = false;
+  // Only show the dot when actually in a call with a readable mic state. This drops the
+  // dot when not in a meeting, including the pre-join screen and lingering meeting URLs
+  // where the in-call controls are already gone.
+  let mic = null;
   for (const status of tabCallStatus.values()) {
-    if (status.callState === "in-call") {
-      anyInCall = true;
-      if (status.micState === "muted") anyMuted = true;
+    if (status.callState !== "in-call") continue;
+    if (status.micState === "muted") {
+      mic = "muted";
+      break;
+    }
+    if (status.micState === "live") {
+      mic = "live";
     }
   }
-  if (!anyInCall) {
+  if (!mic) {
     chrome.action.setIcon({ path: { 48: "images/48.png", 96: "images/96.png", 128: "images/128.png" } });
     return;
   }
-  drawStatusDot(anyMuted ? "#dc2626" : "#0d9488");
+  drawStatusDot(mic === "muted" ? "#dc2626" : "#0d9488");
 }
 
 chrome.tabs.onRemoved.addListener((tabId) => {
