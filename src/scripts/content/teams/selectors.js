@@ -37,17 +37,25 @@ const TeamsSelectors = {
     return null;
   },
 
+  // True only if the element exists and is actually rendered. Teams can leave a stale,
+  // hidden mic button in the DOM after a call ends, which would otherwise read as still
+  // in a call.
+  _visible(selector) {
+    const el = document.querySelector(selector);
+    return Boolean(el && el.getClientRects().length > 0);
+  },
+
   readMicState() {
-    if (document.querySelector(this.IN_CALL_MIC_MUTED)) return "muted";
-    if (document.querySelector(this.IN_CALL_MIC_LIVE)) return "live";
-    if (document.querySelector(this.PREJOIN_MIC_MUTED)) return "muted";
-    if (document.querySelector(this.PREJOIN_MIC_LIVE)) return "live";
+    if (this._visible(this.IN_CALL_MIC_MUTED)) return "muted";
+    if (this._visible(this.IN_CALL_MIC_LIVE)) return "live";
+    if (this._visible(this.PREJOIN_MIC_MUTED)) return "muted";
+    if (this._visible(this.PREJOIN_MIC_LIVE)) return "live";
     return null;
   },
 
   readCallState() {
-    if (document.querySelector(this.IN_CALL_MIC)) return "in-call";
-    if (document.querySelector(this.PREJOIN_MIC)) return "pre-join";
+    if (this._visible(this.IN_CALL_MIC)) return "in-call";
+    if (this._visible(this.PREJOIN_MIC)) return "pre-join";
     if (this.IN_CALL_URL_RE.test(location.pathname)) return "in-call";
     return "none";
   },
