@@ -216,11 +216,11 @@ async function drawStatusDot(color) {
   const ctx = canvas.getContext("2d");
   ctx.drawImage(base, 0, 0, size, size);
 
-  const radius = size * 0.18;
-  const cx = size - radius - 1;
-  const cy = radius + 1;
+  const radius = size * 0.11;
+  const cx = size - radius - 2;
+  const cy = radius + 2;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius + 1.5, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2);
   ctx.fillStyle = "#ffffff";
   ctx.fill();
   ctx.beginPath();
