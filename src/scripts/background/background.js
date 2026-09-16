@@ -187,11 +187,51 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-// Toolbar badge: a status dot on the extension icon while in a Teams call, red when
-// muted and teal when live. Chrome draws the badge in the icon's corner.
+// Toolbar status dot: a small dot in the top corner of the extension icon while in a
+// Teams call, red when muted and teal when live. The dot is drawn onto the icon with a
+// canvas so it stays small, instead of Chrome's larger corner badge.
 const tabCallStatus = new Map();
+const STATUS_ICON_SIZE = 32;
+let baseIconBitmapPromise = null;
 
-function refreshBadge() {
+function getBaseIconBitmap() {
+  if (!baseIconBitmapPromise) {
+    baseIconBitmapPromise = fetch(chrome.runtime.getURL("images/128.png"))
+      .then((response) => response.blob())
+      .then((blob) => createImageBitmap(blob))
+      .catch((error) => {
+        console.error("Teams Caffeine: Could not load base icon:", error);
+        baseIconBitmapPromise = null;
+        return null;
+      });
+  }
+  return baseIconBitmapPromise;
+}
+
+async function drawStatusDot(color) {
+  const base = await getBaseIconBitmap();
+  if (!base) return;
+  const size = STATUS_ICON_SIZE;
+  const canvas = new OffscreenCanvas(size, size);
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(base, 0, 0, size, size);
+
+  const radius = size * 0.18;
+  const cx = size - radius - 1;
+  const cy = radius + 1;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + 1.5, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  chrome.action.setIcon({ imageData: ctx.getImageData(0, 0, size, size) });
+}
+
+function refreshStatusIcon() {
   let anyInCall = false;
   let anyMuted = false;
   for (const status of tabCallStatus.values()) {
@@ -201,16 +241,15 @@ function refreshBadge() {
     }
   }
   if (!anyInCall) {
-    chrome.action.setBadgeText({ text: "" });
+    chrome.action.setIcon({ path: { 48: "images/48.png", 96: "images/96.png", 128: "images/128.png" } });
     return;
   }
-  chrome.action.setBadgeBackgroundColor({ color: anyMuted ? "#dc2626" : "#0d9488" });
-  chrome.action.setBadgeText({ text: " " });
+  drawStatusDot(anyMuted ? "#dc2626" : "#0d9488");
 }
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   if (tabCallStatus.delete(tabId)) {
-    refreshBadge();
+    refreshStatusIcon();
   }
 });
 
@@ -222,7 +261,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
       } else {
         tabCallStatus.delete(sender.tab.id);
       }
-      refreshBadge();
+      refreshStatusIcon();
     }
     return;
   }

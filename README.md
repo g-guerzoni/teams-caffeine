@@ -76,6 +76,10 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.7.2
+
+- **Smaller Status Dot**: The in-call indicator is now a small dot in the corner of the extension icon, drawn onto the icon, instead of a large corner badge.
+
 ### v1.7.1
 
 - **Toolbar Status Dot**: While you are in a Teams call, the extension icon shows a status dot, red when muted and teal when live.
