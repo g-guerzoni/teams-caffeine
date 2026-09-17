@@ -77,9 +77,18 @@
     const callState = TeamsSelectors.readCallState();
     const micState = TeamsSelectors.readMicState();
     if (callState === lastReportedCall && micState === lastReportedMic) return;
-    lastReportedCall = callState;
-    lastReportedMic = micState;
-    ChromeUtils.runtime.sendMessage({ type: "TEAMS_CAFFEINE_STATUS_REPORT", callState, micState });
+    ChromeUtils.runtime.sendMessage(
+      { type: "TEAMS_CAFFEINE_STATUS_REPORT", callState, micState },
+      (response, error) => {
+        // Only remember the state once the service worker has received it. If the
+        // message was dropped (e.g. the worker was asleep), retry on the next tick
+        // instead of leaving the icon stuck on a stale state.
+        if (!error) {
+          lastReportedCall = callState;
+          lastReportedMic = micState;
+        }
+      },
+    );
   }
 
   const statusReportTimer = setInterval(reportCallStatus, 2000);
