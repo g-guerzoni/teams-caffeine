@@ -259,6 +259,14 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   }
 });
 
+// A navigation or reload makes any stored call state for that tab stale, so drop it and
+// let the fresh content script report again.
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === "loading" && tabCallStatus.delete(tabId)) {
+    refreshStatusIcon();
+  }
+});
+
 chrome.runtime.onMessage.addListener((message, sender) => {
   if (message.type === "TEAMS_CAFFEINE_STATUS_REPORT") {
     if (sender.tab) {
