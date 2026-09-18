@@ -91,6 +91,7 @@ teams-caffeine/
   - Communication between popup, options, and content scripts
   - Input validation for timer operations
   - Re-arming the heartbeat on `onStartup` / `onInstalled` when the extension is enabled
+  - The **toolbar status dot**: tracks each Teams tab's call/mic state from `TEAMS_CAFFEINE_STATUS_REPORT` messages and composites a small red (muted) or teal (live) dot onto the extension icon with an `OffscreenCanvas`, clearing it when no tab is in a call
 
 #### Content Script (`scripts/content/`)
 
@@ -101,7 +102,7 @@ teams-caffeine/
   - Responds to extension state changes
   - Stops its loops when the extension context is invalidated (after a reload or update), instead of throwing on an orphaned tab
 - **teams/selectors.js**: The single quarantined source of Teams DOM knowledge, exposed as one global `TeamsSelectors` (mic-button selectors, ring colors, `buildHighlightCss()`, and the `readCallState()` / `readMicState()` readers). UMD-guarded for Node unit tests.
-- **teams/teams-controls.js**: An IIFE (leaks no globals) holding the extensible `FEATURES` registry. Ships the **mic-button highlight** (pure attribute-keyed CSS ring, red = muted / teal = live), toggled live via the `teamsMicHighlightEnabled` setting, and answers the popup's `TEAMS_CAFFEINE_GET_CALL_STATUS` query. Runs independently of the caffeine on/off state, alongside `main.js`.
+- **teams/teams-controls.js**: An IIFE (leaks no globals) holding the extensible `FEATURES` registry. Ships the **mic-button highlight** (pure attribute-keyed CSS ring, red = muted / teal = live), toggled live via the `teamsMicHighlightEnabled` setting. It answers the popup's `TEAMS_CAFFEINE_GET_CALL_STATUS` query and reports call/mic changes to the service worker (`TEAMS_CAFFEINE_STATUS_REPORT`) so it can update the toolbar dot. Runs independently of the caffeine on/off state, alongside `main.js`.
 
 #### User Interface Pages (`pages/`)
 
@@ -128,6 +129,7 @@ Teams Caffeine is a Chrome Extension built on Manifest V3, providing a modern se
 5. **Auto-Disable**: The service worker manages a timer and disables the extension when it expires.
 6. **Call/Mic Indicator**: The popup queries each Teams tab (`TEAMS_CAFFEINE_GET_CALL_STATUS`); the content script replies `{callState, micState}` read from the DOM, and the popup renders the strongest result.
 7. **Mic Highlight**: The options page writes `teamsMicHighlightEnabled`; the content script reacts via `chrome.storage.onChanged` to inject/remove the highlight stylesheet.
+8. **Toolbar Dot**: The content script reports call/mic changes to the service worker (`TEAMS_CAFFEINE_STATUS_REPORT`, acknowledged so no message-port errors); the worker keeps a per-tab map and draws or clears the icon dot to match.
 
 ### Reliability Model
 
@@ -162,6 +164,7 @@ Content-script `setTimeout`/`setInterval` are throttled (and the tab may be froz
 - **`TeamsSelectors.micStateFromDataState(state)`**: Maps a `data-state` value to `"muted"` / `"live"` / `null`. Pure, unit-tested.
 - **`TeamsSelectors.readCallState()` / `readMicState()`**: Read call presence and mic state from the Teams DOM (call state has a URL fallback).
 - **`micHighlight` feature + `FEATURES` registry**: The `{ id, settingKey, start, stop }` control and the extensibility seam; a message listener answers `TEAMS_CAFFEINE_GET_CALL_STATUS`.
+- **`reportCallStatus()`**: Reads call/mic state and, on change, reports it to the service worker (`TEAMS_CAFFEINE_STATUS_REPORT`) for the toolbar dot, retrying if a report is not acknowledged.
 
 ### call-status.js (Popup Helpers)
 
@@ -187,7 +190,8 @@ Content-script `setTimeout`/`setInterval` are throttled (and the tab may be froz
 - **`ensureHeartbeat()`**: Re-arms the heartbeat on startup/install if the extension is enabled.
 - **`startAutoDisableTimer(hours)` / `stopAutoDisableTimer()` / `handleAutoDisable()`**: Manage the auto-disable alarm and its expiry.
 - **Alarm listener**: Routes `autoDisableTeamsCaffeine` to `handleAutoDisable()` and `activityHeartbeat` to the heartbeat broadcast.
-- **Message listener**: Handles `TEAMS_CAFFEINE_TOGGLE` and `AUTO_DISABLE_SETTINGS_CHANGED`.
+- **`refreshStatusIcon()` / `renderIcon(color)`**: Derive the toolbar dot from the per-tab call/mic map and composite it onto the icon via `OffscreenCanvas`, with a sequence guard so a late async draw cannot overwrite a newer state.
+- **Message listener**: Handles `TEAMS_CAFFEINE_STATUS_REPORT` (updates the toolbar dot, acknowledged), `TEAMS_CAFFEINE_TOGGLE`, and `AUTO_DISABLE_SETTINGS_CHANGED`.
 
 ### popup.js (Extension Popup)
 
