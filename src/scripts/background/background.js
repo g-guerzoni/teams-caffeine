@@ -208,33 +208,43 @@ function getBaseIconBitmap() {
   return baseIconBitmapPromise;
 }
 
-async function drawStatusDot(color) {
+let iconRenderSeq = 0;
+
+// Composite the icon (base plus an optional dot) and apply it. Drawing and clearing use
+// the same imageData path. color is a hex string for the dot, or null for the plain icon.
+async function renderIcon(color) {
+  const seq = ++iconRenderSeq;
   const base = await getBaseIconBitmap();
-  if (!base) return;
+  if (seq !== iconRenderSeq) return; // a newer state superseded this render
+  if (!base) {
+    chrome.action.setIcon({ path: { 48: "images/48.png", 96: "images/96.png", 128: "images/128.png" } });
+    return;
+  }
   const size = STATUS_ICON_SIZE;
   const canvas = new OffscreenCanvas(size, size);
   const ctx = canvas.getContext("2d");
   ctx.drawImage(base, 0, 0, size, size);
-
-  const radius = size * 0.18;
-  const cx = size - radius - 1;
-  const cy = radius + 1;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius + 1.5, 0, Math.PI * 2);
-  ctx.fillStyle = "#ffffff";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-
-  chrome.action.setIcon({ imageData: ctx.getImageData(0, 0, size, size) });
+  if (color) {
+    const radius = size * 0.18;
+    const cx = size - radius - 1;
+    const cy = radius + 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius + 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+  if (seq !== iconRenderSeq) return; // superseded while drawing
+  chrome.action.setIcon({ imageData: ctx.getImageData(0, 0, size, size) }, () => {
+    console.log("TeamsCaffeine[dot] setIcon color=%s err=%s", color, chrome.runtime.lastError ? chrome.runtime.lastError.message : "none");
+  });
 }
 
 function refreshStatusIcon() {
-  // Only show the dot when actually in a call with a readable mic state. This drops the
-  // dot when not in a meeting, including the pre-join screen and lingering meeting URLs
-  // where the in-call controls are already gone.
+  // Only show the dot when actually in a call with a readable mic state.
   let mic = null;
   for (const status of tabCallStatus.values()) {
     if (status.callState !== "in-call") continue;
@@ -246,11 +256,9 @@ function refreshStatusIcon() {
       mic = "live";
     }
   }
-  if (!mic) {
-    chrome.action.setIcon({ path: { 48: "images/48.png", 96: "images/96.png", 128: "images/128.png" } });
-    return;
-  }
-  drawStatusDot(mic === "muted" ? "#dc2626" : "#0d9488");
+  const color = mic ? (mic === "muted" ? "#dc2626" : "#0d9488") : null;
+  console.log("TeamsCaffeine[dot] refresh tabs=%d mic=%s color=%s", tabCallStatus.size, mic, color);
+  renderIcon(color);
 }
 
 chrome.tabs.onRemoved.addListener((tabId) => {
