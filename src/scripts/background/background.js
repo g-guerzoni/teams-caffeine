@@ -238,9 +238,7 @@ async function renderIcon(color) {
     ctx.fill();
   }
   if (seq !== iconRenderSeq) return; // superseded while drawing
-  chrome.action.setIcon({ imageData: ctx.getImageData(0, 0, size, size) }, () => {
-    console.log("TeamsCaffeine[dot] setIcon color=%s err=%s", color, chrome.runtime.lastError ? chrome.runtime.lastError.message : "none");
-  });
+  chrome.action.setIcon({ imageData: ctx.getImageData(0, 0, size, size) });
 }
 
 function refreshStatusIcon() {
@@ -256,9 +254,7 @@ function refreshStatusIcon() {
       mic = "live";
     }
   }
-  const color = mic ? (mic === "muted" ? "#dc2626" : "#0d9488") : null;
-  console.log("TeamsCaffeine[dot] refresh tabs=%d mic=%s color=%s", tabCallStatus.size, mic, color);
-  renderIcon(color);
+  renderIcon(mic ? (mic === "muted" ? "#dc2626" : "#0d9488") : null);
 }
 
 chrome.tabs.onRemoved.addListener((tabId) => {
@@ -275,7 +271,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "TEAMS_CAFFEINE_STATUS_REPORT") {
     if (sender.tab) {
       if (message.callState === "in-call") {
@@ -285,6 +281,8 @@ chrome.runtime.onMessage.addListener((message, sender) => {
       }
       refreshStatusIcon();
     }
+    // Acknowledge so the content script's callback does not see a closed message port.
+    sendResponse({ ok: true });
     return;
   }
 
