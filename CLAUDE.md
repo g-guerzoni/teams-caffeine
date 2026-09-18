@@ -27,7 +27,7 @@ Only pure logic is unit-tested (`timing.js`, `selectors.js`, `call-status.js`). 
 
 **MV3 service-worker lifecycle** (`background/background.js`): the worker is ephemeral. Timers use `chrome.alarms`, not `setTimeout`, and all event listeners are registered at the top level so they survive worker restarts. The `activityHeartbeat` alarm exists because content-script `setTimeout`/`setInterval` are throttled when the Teams tab is backgrounded; the alarm drives activity that survives throttling.
 
-**Extension-context invalidation.** After the extension reloads/updates, content scripts already running in open tabs are orphaned: `chrome.runtime.id` becomes undefined and `chrome.*` calls throw. Content scripts guard on `chrome.runtime?.id` and stop their loops. Testing implication: reloading the extension does NOT refresh the content script in an already-open Teams tab — reload the tab too, and reload the extension *first*, then the tab.
+**Extension-context invalidation.** After the extension reloads/updates, content scripts already running in open tabs are orphaned: `chrome.runtime.id` becomes undefined and `chrome.*` calls throw. Content scripts guard on `chrome.runtime?.id` and stop their loops. Testing implication: reloading the extension does NOT refresh the content script in an already-open Teams tab. Reload the tab too, and reload the extension *first*, then the tab.
 
 **Teams DOM coupling.** All Teams selectors live only in `content/teams/selectors.js` (single quarantined source). They are verified for `teams.cloud.microsoft`; the in-call mic button is `#microphone-button[data-state="mic-off"]` (muted) / `[data-state="mic"]` (live), checked for visibility via `getClientRects()`. Everything fails safe: no selector match means no ring/dot and never breaks Teams.
 
@@ -35,7 +35,7 @@ Only pure logic is unit-tested (`timing.js`, `selectors.js`, `call-status.js`). 
 
 **Message types**: `TEAMS_CAFFEINE_TOGGLE` and `AUTO_DISABLE_SETTINGS_CHANGED` (popup/options → worker; privileged, rejected when `sender.tab` is set, i.e. from a content script); `TEAMS_CAFFEINE_STATE` and `TEAMS_CAFFEINE_HEARTBEAT` (worker → content); `TEAMS_CAFFEINE_GET_CALL_STATUS` (popup query → content, synchronous response); `TEAMS_CAFFEINE_STATUS_REPORT` (content → worker, for the dot).
 
-**Permissions**: `storage`, `alarms`, and `host_permissions` for the three Teams domains — deliberately not the broad `tabs` permission. Content-script injection is governed separately by `content_scripts.matches`.
+**Permissions**: `storage`, `alarms`, and `host_permissions` for the three Teams domains, deliberately not the broad `tabs` permission. Content-script injection is governed separately by `content_scripts.matches`.
 
 ## Conventions
 
