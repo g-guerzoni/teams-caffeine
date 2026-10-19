@@ -6,6 +6,7 @@ const TeamsSelectors = require("../src/scripts/content/teams/selectors.js");
 test("micStateFromDataState maps Teams data-state values", () => {
   assert.equal(TeamsSelectors.micStateFromDataState("mic-off"), "muted");
   assert.equal(TeamsSelectors.micStateFromDataState("mic"), "live");
+  assert.equal(TeamsSelectors.micStateFromDataState("mic-volume-renderer"), "live");
   assert.equal(TeamsSelectors.micStateFromDataState("disabled"), null);
   assert.equal(TeamsSelectors.micStateFromDataState(undefined), null);
 });
@@ -13,7 +14,8 @@ test("micStateFromDataState maps Teams data-state values", () => {
 test("buildHighlightCss covers all four selectors, both colors, and !important", () => {
   const css = TeamsSelectors.buildHighlightCss();
   assert.match(css, /#microphone-button\[data-state="mic-off"\]/);
-  assert.match(css, /#microphone-button\[data-state="mic"\]/);
+  assert.match(css, /#microphone-button\[data-state\^="mic"\]:not\(\[data-state="mic-off"\]\)/);
+  assert.match(css, /inset 0 0 0 2px/);
   assert.match(css, /data-track-action-scenario="preJoinUnmute"/);
   assert.match(css, /data-track-action-scenario="preJoinMute"/);
   assert.ok(css.includes("#dc2626"));

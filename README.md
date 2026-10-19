@@ -77,6 +77,10 @@ microsoft teams, teams extension, stay active, prevent timeout, teams status, ac
 
 ## Changelog
 
+### v1.7.4
+
+- **Mic Highlight Fix**: The mic-button ring, popup mic status and toolbar dot work again after a Microsoft Teams update changed the mic button. The ring is now drawn inside the button so Teams no longer clips it.
+
 ### v1.7.3
 
 - **Reliable Status Dot**: The in-call status dot on the extension icon now shows and clears reliably, and only while you are actually in a call.
