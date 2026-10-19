@@ -9,9 +9,10 @@ const TeamsSelectors = {
 
   HIGHLIGHT_STYLE_ID: "teams-caffeine-mic-highlight",
 
-  // Mute-VALUE selectors (drive ring color + micState)
+  // Mute-VALUE selectors (drive ring color + micState). The live state was "mic" and is
+  // now "mic-volume-renderer" (Oct 2026), so match any "mic*" state except "mic-off".
   IN_CALL_MIC_MUTED: '#microphone-button[data-state="mic-off"]',
-  IN_CALL_MIC_LIVE: '#microphone-button[data-state="mic"]',
+  IN_CALL_MIC_LIVE: '#microphone-button[data-state^="mic"]:not([data-state="mic-off"])',
   PREJOIN_MIC_MUTED: 'button[data-track-action-scenario="preJoinUnmute"]', // action=unmute => currently muted
   PREJOIN_MIC_LIVE: 'button[data-track-action-scenario="preJoinMute"]', // action=mute => currently live (UNVERIFIED)
 
@@ -21,8 +22,10 @@ const TeamsSelectors = {
     'button[data-track-action-scenario="preJoinMute"], button[data-track-action-scenario="preJoinUnmute"]',
   IN_CALL_URL_RE: /\/meet(up-join)?\//i,
 
+  // Inset ring: the in-call mic button sits inside a split button in an overflow
+  // container, which clips an outer box-shadow.
   buildHighlightCss() {
-    const ring = (c) => `box-shadow: 0 0 0 2px ${c} !important;`;
+    const ring = (c) => `box-shadow: inset 0 0 0 2px ${c} !important;`;
     return [
       `${this.IN_CALL_MIC_MUTED} { ${ring(this.MIC_MUTED_COLOR)} }`,
       `${this.IN_CALL_MIC_LIVE} { ${ring(this.MIC_LIVE_COLOR)} }`,
@@ -33,7 +36,7 @@ const TeamsSelectors = {
 
   micStateFromDataState(state) {
     if (state === "mic-off") return "muted";
-    if (state === "mic") return "live";
+    if (state === "mic" || state === "mic-volume-renderer") return "live";
     return null;
   },
 
